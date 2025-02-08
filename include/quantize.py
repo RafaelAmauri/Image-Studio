@@ -35,7 +35,7 @@ def quantize(img: np.typing.ArrayLike, numberOfColors: int, useDithering=True) -
         numberOfColors (int)     : How many colors are available. 
                                    The colors available are the interval [0, 255] 
                                    uniformly divided by this parameter.
-        useDithering (bool)      : If True, uses dithering to help mitigate a narrow color pallette
+        useDithering (bool)      : If True, uses dithering to help mitigate a narrow color palette
 
     Returns:
         np.typing.ArrayLike (np.uint8): The quantized image
