@@ -4,7 +4,7 @@ Welcome to my Image Studio repo!
 
 This repo is a pet project of mine where I code a range of different image processing techniques. 
 The main goal is to learn more about image processing by coding certain techniques by hand rather than 
-using already established libraries. 
+using existing libraries. 
 
 
 ## Showcase 
@@ -36,7 +36,7 @@ Next, run the code with
 
 
 
-It is possible to specify what operations you want by the command line.  For example, to quantize an image with 8 colors and use dithering, you could run
+You can specify what operations you want by the command line.  For example, to quantize an image with 8 colors and use dithering, you could run
 
     python3 main.py -i path/to/image --quantize 8 --dithering
 
