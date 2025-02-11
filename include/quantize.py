@@ -3,22 +3,22 @@ import numpy as np
 import include.dither as dither
 
 
-def nearestColor(pixelColor: int, colorsAvailable: np.typing.ArrayLike) -> int:
+def nearestColor(pixelColor: int, availableColors: np.typing.ArrayLike) -> int:
     """
     Given a list of available colors, picks the one closest to pixelColor
 
     Args:
         pixelColor (int): The original color
-        colorsAvailable (np.typing.ArrayLike): The list of available colors
+        availableColors (np.typing.ArrayLike): The list of available colors
 
     Returns:
-        int: The color in colorsAvailable closest to pixelColor
+        int: The color in availableColors closest to pixelColor
     """
-    candidate1Idx = np.searchsorted(colorsAvailable, pixelColor, "right") - 1
-    candidate2Idx = candidate1Idx+1 if candidate1Idx < len(colorsAvailable)-1 else -1
+    candidate1Idx = np.searchsorted(availableColors, pixelColor, "right") - 1
+    candidate2Idx = candidate1Idx+1 if candidate1Idx < len(availableColors)-1 else -1
 
-    candidate1 = int(colorsAvailable[candidate1Idx])
-    candidate2 = int(colorsAvailable[candidate2Idx])
+    candidate1 = int(availableColors[candidate1Idx])
+    candidate2 = int(availableColors[candidate2Idx])
     pixelColor = int(pixelColor)
 
     # The new pixel color is whichever of the two candidate colors are the closest to it
@@ -27,15 +27,15 @@ def nearestColor(pixelColor: int, colorsAvailable: np.typing.ArrayLike) -> int:
     return quantizedColor
 
 
-def quantize(img: np.typing.ArrayLike, numberOfColors: int, useDithering=True) -> np.typing.ArrayLike:
+def quantize(img: np.typing.ArrayLike, availableColors: np.typing.ArrayLike, useDithering=True) -> np.typing.ArrayLike:
     """Quantizes the image into an arbitrary number of colors.
 
     Args:
-        img (np.typing.ArrayLike): The image array. Must be in the format (H, W, C)
-        numberOfColors (int)     : How many colors are available. 
-                                   The colors available are the interval [0, 255] 
-                                   uniformly divided by this parameter.
-        useDithering (bool)      : If True, uses dithering to help mitigate a narrow color palette
+        img (np.typing.ArrayLike)             : The image array. Must be in the format (H, W, C)
+        availableColors (np.typing.ArrayLike) : A list containing the colors available. Should start at 0 and 
+                                                the last element should be 255.
+        useDithering (bool)                   : If True, uses dithering to help mitigate a narrow 
+                                                color palette
 
     Returns:
         np.typing.ArrayLike (np.uint8): The quantized image
@@ -45,10 +45,6 @@ def quantize(img: np.typing.ArrayLike, numberOfColors: int, useDithering=True) -
     # a bit overflow. To be safe, we use np.float32 for just this one operation.
     # At the end of the function, we convert the values back to np.uint8.
     img = np.copy(img).astype(np.float32)
-
-
-    # Creates a uniformily spaced color distribution. It's a uniform division from 0 to 255, with args.quantize different colors.
-    colorsAvailable = np.linspace(0, 255, numberOfColors, dtype=np.uint8)
     
     for row in range(img.shape[0]):
         for column in range(img.shape[1]):
@@ -56,7 +52,7 @@ def quantize(img: np.typing.ArrayLike, numberOfColors: int, useDithering=True) -
                 oldPixelColor = img[row][column][channel]
 
                 # Quantize the pixel
-                newPixelColor = nearestColor(oldPixelColor, colorsAvailable)
+                newPixelColor = nearestColor(oldPixelColor, availableColors)
                 img[row][column][channel] = newPixelColor
 
                 if useDithering:

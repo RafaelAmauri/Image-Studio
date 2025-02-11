@@ -17,20 +17,26 @@ def main(args):
     # This simplifies the integration with the rest of the code.
     if enableGrayscale:
         img = img.convert("L")
-        #img = img.convert("RGB")
+        img = img.convert("RGB")
 
     img = np.asarray(img, dtype=np.uint8)
-    
+
     # Quantize the image (with or without dithering)
     if args.quantize != -1:
-        img = quantize.quantize(img, numberOfColors=args.quantize, useDithering=args.dithering)
+        # Creates a uniformily spaced color distribution. It's a uniform division from 0 to 255, with args.quantize different colors.
+        availableColors = np.linspace(0, 255, args.quantize, dtype=np.uint8)
+        img = quantize.quantize(img, availableColors, useDithering=args.dithering)
     
     # Convert the color palette according to a color LUT
-    colorLUT = { (30, 75) : (0, 10) }
+    colorLUT = { np.float32(0/255) :  [93, 29/100, 12/100],
+                 np.float32(85/255):  [124, 52/100, 25/100],
+                 np.float32(170/255): [114, 45/100, 35/100],
+                 np.float32(255/255): [149, 37/100, 93/100]
+                 }
+    
     hsvImg = colorspace.rgb2hsv(img)
-    #hsvImg = colormapping.paletteConversion(hsvImg, colorLUT)
-    img    = colorspace.hsv2rgb(hsvImg)
-
+    hsvImg = colormapping.changePalette(hsvImg, colorLUT)
+    img = colorspace.hsv2rgb(hsvImg)
 
     # Save the image
     img = PIL.Image.fromarray(img)
