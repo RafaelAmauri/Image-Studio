@@ -13,17 +13,14 @@ def main(args):
     # Open the image
     img = PIL.Image.open(args.image)
 
-    # Convert to grayscale if so desired
+    # Convert to grayscale if so desired. The change back to RGB is to add a 3-channel dimension to the image.
+    # This simplifies the integration with the rest of the code.
     if enableGrayscale:
         img = img.convert("L")
+        #img = img.convert("RGB")
 
     img = np.asarray(img, dtype=np.uint8)
-
-    # To make the code work with grayscale, we need to add a fake "channel" dimension. This makes 
-    # it easier to interact with the rest of the code
-    if enableGrayscale:
-        img = np.expand_dims(img, axis=2)
-
+    
     # Quantize the image (with or without dithering)
     if args.quantize != -1:
         img = quantize.quantize(img, numberOfColors=args.quantize, useDithering=args.dithering)
@@ -31,13 +28,8 @@ def main(args):
     # Convert the color palette according to a color LUT
     colorLUT = { (30, 75) : (0, 10) }
     hsvImg = colorspace.rgb2hsv(img)
-    hsvImg = colormapping.paletteConversion(hsvImg, colorLUT)
+    #hsvImg = colormapping.paletteConversion(hsvImg, colorLUT)
     img    = colorspace.hsv2rgb(hsvImg)
-
-
-    # Remove the fake "channel" dimension
-    if enableGrayscale:
-        img = img.squeeze(2)
 
 
     # Save the image
