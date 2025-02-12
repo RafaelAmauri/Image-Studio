@@ -11,7 +11,7 @@ using existing libraries.
 
 ### Color Palette Conversion
 
-This functionality works as a [Color LUT](https://en.wikipedia.org/wiki/3D_lookup_table). The original image is converted to grayscale, dithered to remove color banding, and then a color LUT maps each grayscale value to a different HSV value. The core idea is to associate color with a single channel in the image - rather than 3 channels, like it is with RGB. For this reason, I used the [HSV colorspace](https://en.wikipedia.org/wiki/HSL_and_HSV).
+My color palette conversion works as a [Color LUT](https://en.wikipedia.org/wiki/3D_lookup_table). The original image is converted to grayscale, dithered to remove color banding, and then a color LUT maps each grayscale value to a different HSV value. The core idea is to associate color with a single channel in the image, rather than with 3 channels, like it is with RGB. This makes it easier to manipulate color, and for this reason I used the [HSV colorspace](https://en.wikipedia.org/wiki/HSL_and_HSV).
 
 After a Hue is specified with the -p option, a color palette for that Hue will be created on-the-fly. Currently it only suports color palettes of a single Hue.
 
@@ -32,7 +32,7 @@ Some examples:
 
 ### Quantization and Dithering
 
-Reduces the color palette from 8-bit to an arbitrary range. Works with both grayscale and RGB images XD
+Quantization works by reducing the number of colors in an image. Works with both grayscale and RGB images XD
 
 The dithering is either done with the [Floyd-Steinberg dithering algorithm](https://en.wikipedia.org/wiki/Floyd%E2%80%93Steinberg_dithering) or the [Ordered Dithering algorithm](https://en.wikipedia.org/wiki/Ordered_dithering). Dithering works by distributing pixels in a way that makes the image appear to have more colors than it actually does. This creates the illusion of a wider color palette.
 
