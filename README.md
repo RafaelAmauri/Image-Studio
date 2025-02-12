@@ -58,8 +58,8 @@ Next, run the code with
 
 
 
-You can specify what operations you want by the command line.  For example, to quantize an image with 8 colors and use dithering, you could run
+You can specify what operations you want by the command line.  For example, to quantize an image with 8 colors, you could run
 
-    python3 main.py -i path/to/image --quantize 8 --dithering
+    python3 main.py -i path/to/image --quantize 8
 
-The file [include/parser.py](include/parser.py) displays all the valid operations.
+Please check the file [include/parser.py](include/parser.py) displays all the valid options.
