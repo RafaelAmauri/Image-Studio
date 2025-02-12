@@ -4,6 +4,7 @@ import PIL.Image
 import include.colormapping as colormapping
 import include.colorspace as colorspace
 import include.quantize as quantize
+import include.dither as dither
 import include.parser as parser
 
 
@@ -20,23 +21,33 @@ def main(args):
         img = img.convert("RGB")
 
     img = np.asarray(img, dtype=np.uint8)
+    
 
-    # Quantize the image (with or without dithering)
-    if args.quantize != -1:
+    # If the user wants to quantize the image. args.quantize contains the number of colors available.
+    if args.quantize is not None:
         # Creates a uniformily spaced color distribution. It's a uniform division from 0 to 255, with args.quantize different colors.
         availableColors = np.linspace(0, 255, args.quantize, dtype=np.uint8)
-        img = quantize.quantize(img, availableColors, useDithering=args.dithering)
-    
-    # Convert the color palette according to a color LUT
-    colorLUT = { np.float32(0/255) :  [93, 29/100, 12/100],
-                 np.float32(85/255):  [124, 52/100, 25/100],
-                 np.float32(170/255): [114, 45/100, 35/100],
-                 np.float32(255/255): [149, 37/100, 93/100]
-                 }
-    
-    hsvImg = colorspace.rgb2hsv(img)
-    hsvImg = colormapping.changePalette(hsvImg, colorLUT)
-    img = colorspace.hsv2rgb(hsvImg)
+        
+        # Quantize the image with dithering
+        if args.dithering is not None:
+            if args.dithering == "ordered":
+                img = dither.orderedDithering(img, 2, availableColors)
+            elif args.dithering == "floyd-steinberg":
+                img = quantize.quantize(img, availableColors, useFloydSteinberg=True)
+
+        # Quantize the image without dithering
+        if args.dithering is None:
+            print("No dither!")
+            img = quantize.quantize(img, availableColors, useFloydSteinberg=False)
+
+        # Change the color palette
+        if args.palette is not None:
+            colorLUT = colormapping.generatePalette(args.palette, availableColors)
+            
+            hsvImg = colorspace.rgb2hsv(img)
+            hsvImg = colormapping.changePalette(hsvImg, colorLUT)
+            img    = colorspace.hsv2rgb(hsvImg)
+
 
     # Save the image
     img = PIL.Image.fromarray(img)

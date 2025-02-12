@@ -1,6 +1,7 @@
 import numpy as np
 import typing
 
+
 def changeColor(img: np.typing.ArrayLike, LUT: typing.Dict) -> np.typing.ArrayLike:
     """Given an HSV image, this function changes the colors within a specified hue with another hue!
     Use a color LUT as an argument and the function will change the pixels with a hue that fall within 
@@ -25,6 +26,7 @@ def changeColor(img: np.typing.ArrayLike, LUT: typing.Dict) -> np.typing.ArrayLi
     
     return img
 
+    
 
 def changePalette(img: np.typing.ArrayLike, LUT: typing.Dict) -> np.typing.ArrayLike:
     """This function converts the color palette within an HSV image into a specified color palette!
@@ -48,3 +50,26 @@ def changePalette(img: np.typing.ArrayLike, LUT: typing.Dict) -> np.typing.Array
     
     
     return img
+
+
+
+def generatePalette(hue: int, availableColors: np.typing.ArrayLike):
+    """Given a initial Hue, it generates a new color palette with len(availableColors) different gradients of the hue parameter.
+    Note that the hue in the palette is the same, the only change is in the saturation and brightness values of the given hue.
+
+    Args:
+        hue (int)                            : The hue in HSV format. Should be a value between 0 and 359.
+        availableColors (np.typing.ArrayLike): The availableColors that were used for quantization
+
+    Returns:
+        dict: A color LUT, where each value in the availableColors array is mapped to a HSV value.
+    """
+    # The S component dictates the saturation value.
+    sComponents = np.linspace(0.0, 1.0, len(availableColors), dtype=np.float32)
+    # The V component dictates the brightness value.
+    vComponents = np.linspace(0.0, 1.0, len(availableColors), dtype=np.float32)
+    
+    colorLUT    = { np.float32(availableColors[i]/255): [hue, sComponents[i], vComponents[i]] for i in range(len(availableColors))}
+
+    return colorLUT
+

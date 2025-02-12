@@ -27,14 +27,14 @@ def nearestColor(pixelColor: int, availableColors: np.typing.ArrayLike) -> int:
     return quantizedColor
 
 
-def quantize(img: np.typing.ArrayLike, availableColors: np.typing.ArrayLike, useDithering=True) -> np.typing.ArrayLike:
+def quantize(img: np.typing.ArrayLike, availableColors: np.typing.ArrayLike, useFloydSteinberg=True) -> np.typing.ArrayLike:
     """Quantizes the image into an arbitrary number of colors.
 
     Args:
         img (np.typing.ArrayLike)             : The image array. Must be in the format (H, W, C)
         availableColors (np.typing.ArrayLike) : A list containing the colors available. Should start at 0 and 
                                                 the last element should be 255.
-        useDithering (bool)                   : If True, uses dithering to help mitigate a narrow 
+        useFloydSteinberg (bool)              : If True, uses dithering to help mitigate a narrow 
                                                 color palette
 
     Returns:
@@ -54,12 +54,13 @@ def quantize(img: np.typing.ArrayLike, availableColors: np.typing.ArrayLike, use
                 # Quantize the pixel
                 newPixelColor = nearestColor(oldPixelColor, availableColors)
                 img[row][column][channel] = newPixelColor
-
-                if useDithering:
+                
+                # Uses the Floyd-Steinberg algorithm to dither the image.
+                if useFloydSteinberg:
                     quantizationResidual = oldPixelColor - newPixelColor
-                    residuals = dither.dither(quantizationResidual)
-                    # Distribute the residuals. We clip the values so residuals are always in the [0, 255] range
+                    residuals = dither.floydSteinberg(quantizationResidual)
 
+                    # Distribute the residuals. We clip the values so residuals are always in the [0, 255] range
                     if column + 1 < img.shape[1]:
                         # Update pixel to the right
                         img[row][column+1][channel]   = np.clip(img[row][column+1][channel]   + residuals[0], 0, 255)
@@ -73,7 +74,7 @@ def quantize(img: np.typing.ArrayLike, availableColors: np.typing.ArrayLike, use
                         if column + 1 < img.shape[1]:
                             # Update pixel to the right
                             img[row+1][column+1][channel] = np.clip(img[row+1][column+1][channel] + residuals[3], 0, 255)
-
+                
     
     img = img.astype(np.uint8)
     return img

@@ -90,6 +90,6 @@ def rgb2hsv(img: np.typing.ArrayLike) -> np.typing.ArrayLike:
     # Right now our hsvImg array is a huge one-dimension array. We have to reshape it so it is in the [H, W, C] format.
     # Conviniently, originalImgShape is already in that format, so we just reuse that.
     hsvImg = np.reshape(hsvImg, originalImgShape)
-
+    
 
     return hsvImg
