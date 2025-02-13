@@ -33,12 +33,11 @@ def main(args):
             if args.dithering == "ordered":
                 img = dither.orderedDithering(img, 2, availableColors)
             elif args.dithering == "floyd-steinberg":
-                img = quantize.quantize(img, availableColors, useFloydSteinberg=True)
+                img = dither.floydSteinberg(img, availableColors)
 
         # Quantize the image without dithering
         if args.dithering is None:
-            print("No dither!")
-            img = quantize.quantize(img, availableColors, useFloydSteinberg=False)
+            img = quantize.quantize(img, availableColors)
 
         # Change the color palette
         if args.palette is not None:

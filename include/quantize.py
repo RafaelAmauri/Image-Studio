@@ -1,4 +1,5 @@
 import numpy as np
+import time
 
 import include.dither as dither
 
@@ -15,66 +16,45 @@ def nearestColor(pixelColor: int, availableColors: np.typing.ArrayLike) -> int:
         int: The color in availableColors closest to pixelColor
     """
     candidate1Idx = np.searchsorted(availableColors, pixelColor, "right") - 1
-    candidate2Idx = candidate1Idx+1 if candidate1Idx < len(availableColors)-1 else -1
+    candidate2Idx = np.clip(candidate1Idx + 1, 0, len(availableColors)-1)
 
-    candidate1 = int(availableColors[candidate1Idx])
-    candidate2 = int(availableColors[candidate2Idx])
-    pixelColor = int(pixelColor)
+    candidate1 = availableColors[candidate1Idx]
+    candidate2 = availableColors[candidate2Idx]
+    pixelColor = pixelColor
 
     # The new pixel color is whichever of the two candidate colors are the closest to it
-    quantizedColor = candidate1 if (pixelColor - candidate1) < (candidate2 - pixelColor) else candidate2
-
+    quantizedColor = np.where(
+                        (pixelColor - candidate1) < (candidate2 - pixelColor),
+                        candidate1,
+                        candidate2
+    )
+    
     return quantizedColor
 
 
-def quantize(img: np.typing.ArrayLike, availableColors: np.typing.ArrayLike, useFloydSteinberg=True) -> np.typing.ArrayLike:
+def quantize(img: np.typing.ArrayLike, availableColors: np.typing.ArrayLike) -> np.typing.ArrayLike:
     """Quantizes the image into an arbitrary number of colors.
 
     Args:
         img (np.typing.ArrayLike)             : The image array. Must be in the format (H, W, C)
         availableColors (np.typing.ArrayLike) : A list containing the colors available. Should start at 0 and 
                                                 the last element should be 255.
-        useFloydSteinberg (bool)              : If True, uses dithering to help mitigate a narrow 
-                                                color palette
-
     Returns:
         np.typing.ArrayLike (np.uint8): The quantized image
     """
-    # Sometimes, the dithering operation could cause an overflow if there's a pixel that's 
-    # already at 255. If any non-zero dithering resudials get added to it, it would cause
-    # a bit overflow. To be safe, we use np.float32 for just this one operation.
-    # At the end of the function, we convert the values back to np.uint8.
-    img = np.copy(img).astype(np.float32)
-    
-    for row in range(img.shape[0]):
-        for column in range(img.shape[1]):
-            for channel in range(img.shape[2]):
-                oldPixelColor = img[row][column][channel]
+    originalImgShape = img.shape
+    img = img.copy()
 
-                # Quantize the pixel
-                newPixelColor = nearestColor(oldPixelColor, availableColors)
-                img[row][column][channel] = newPixelColor
-                
-                # Uses the Floyd-Steinberg algorithm to dither the image.
-                if useFloydSteinberg:
-                    quantizationResidual = oldPixelColor - newPixelColor
-                    residuals = dither.floydSteinberg(quantizationResidual)
-
-                    # Distribute the residuals. We clip the values so residuals are always in the [0, 255] range
-                    if column + 1 < img.shape[1]:
-                        # Update pixel to the right
-                        img[row][column+1][channel]   = np.clip(img[row][column+1][channel]   + residuals[0], 0, 255)
-                    
-                    if row + 1 < img.shape[0]:
-                        # Update pixel below
-                        img[row+1][column][channel]   = np.clip(img[row+1][column][channel]   + residuals[2], 0, 255)
-                        if column - 1 >= 0:
-                            # Update pixel below and to the left
-                            img[row+1][column-1][channel] = np.clip(img[row+1][column-1][channel] + residuals[1], 0, 255)
-                        if column + 1 < img.shape[1]:
-                            # Update pixel to the right
-                            img[row+1][column+1][channel] = np.clip(img[row+1][column+1][channel] + residuals[3], 0, 255)
-                
+    # Reshape img into (H * W, 3)
+    img = img.reshape(-1, img.shape[-1])
     
+    # For each channel, pass it as an argument to nearestColor. Since nearestColor is fully vectorized, it
+    # applies the function to the pixels in each channel separately
+    img  = np.stack([nearestColor(img[:, channel], availableColors) for channel in range(img.shape[-1])], axis=1)
+    
+    # Reshape the image back into the original shape
+    img = img.reshape(originalImgShape)
+    
+
     img = img.astype(np.uint8)
     return img
