@@ -40,7 +40,7 @@ Some examples:
 ![Anime girl - green](assets/animegirl_green.png)
 
 
-### Quantization and Dithering 🟦 🟧
+### Quantization and Dithering 🟦 🟧 🟩 ⬜
 
 Quantization works by reducing the number of colors in an image.
 
