@@ -40,6 +40,8 @@ def changePalette(img: np.typing.ArrayLike, LUT: typing.Dict) -> np.typing.Array
     Returns:
         np.typing.ArrayLike: The HSV image with the new color palette!
     """
+    img = img * (1.0, 1.0, 255.0)
+    img = img.astype(np.float32)
 
     for row in range(img.shape[0]):
         for column in range(img.shape[1]):
@@ -47,7 +49,6 @@ def changePalette(img: np.typing.ArrayLike, LUT: typing.Dict) -> np.typing.Array
             if currentGrayscale in LUT:
                 newHSV = LUT[currentGrayscale]
                 img[row][column] = newHSV
-    
     
     return img
 
@@ -69,7 +70,7 @@ def generatePalette(hue: int, availableColors: np.typing.ArrayLike):
     # The V component dictates the brightness value.
     vComponents = np.linspace(0.0, 1.0, len(availableColors), dtype=np.float32)
     
-    colorLUT    = { np.float32(availableColors[i]/255): [hue, sComponents[i], vComponents[i]] for i in range(len(availableColors))}
+    colorLUT    = { np.float32(availableColors[i]): [hue, sComponents[i], vComponents[i]] for i in range(len(availableColors))}
 
     return colorLUT
 
