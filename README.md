@@ -74,7 +74,7 @@ this makes them **ideal candidates for [SIMD acceleration](https://en.wikipedia.
 Implementing SIMD acceleration often requires **major rewrites and optimizations**, and the process is often not very straightforward, but it is still very much worth it!
 
 The speedup I got after implementing vectorization is massive. For reference, my Ryzen 7 5700X3D can **quantize**, **dither** and **convert the color palette of an 8K image in around 15 seconds**. 
-Without vectorization, the same operations on the same image took over **40 minutes**. So, in a way, you could say that the code in this repo is **8K-ready**! 😁
+Without vectorization, the same operations on the same image took over **20 minutes**. So, in a way, you could say that the code in this repo is **8K-ready**! 😁
 
 ⚠️ **Vectorization is not the same as multithreading**! Vectorization leverages **[Vector Processors](https://en.wikipedia.org/wiki/Vector_processor)** that exist on modern CPUs. 
 These Vector Units are optimized for running SIMD code for multiple data at once. **However, SIMD acceleration still runs on a single CPU thread**!
