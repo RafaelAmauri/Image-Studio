@@ -27,7 +27,7 @@ After a Hue is specified with the -p option, a color palette for that Hue will b
 
 Some examples:
 
-**Original Image (Credit to [Keith Griego](https://www.artstation.com/keithgriego) on Artstation) - 16 Million Colors** 
+**Original Image (Credit to [Keith Griego](https://www.artstation.com/artwork/dKR0xw) on Artstation) - 16 Million Colors** 
 
 ![Anime girl - original](assets/animegirl_original.png)
 
