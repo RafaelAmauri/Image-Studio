@@ -40,18 +40,27 @@ def changePalette(img: np.typing.ArrayLike, LUT: typing.Dict) -> np.typing.Array
     Returns:
         np.typing.ArrayLike: The HSV image with the new color palette!
     """
+    originalImgShape = img.shape
+
+    # Convert the value channel to the range [0, 255]
     img = img * (1.0, 1.0, 255.0)
     img = img.astype(np.float32)
 
-    for row in range(img.shape[0]):
-        for column in range(img.shape[1]):
-            currentGrayscale = img[row][column][2]
-            if currentGrayscale in LUT:
-                newHSV = LUT[currentGrayscale]
-                img[row][column] = newHSV
+    # Reshape img so it's a 1-D array of individual pixels
+    img = img.reshape(-1, img.shape[-1])
     
-    return img
+    for key, hsvValues in LUT.items():
+        # For each gray value in the LUT, use a mask to find the pixels where the 
+        # brightness value (V channel) is the same as the one in the color LUT
+        maskGrayscaleOriginal = img[..., 2] == key
 
+        # And change them with the new HSV values in the color LUT!
+        img[maskGrayscaleOriginal] = hsvValues
+
+    # Change the image back to the original shape
+    img = img.reshape(originalImgShape)
+
+    return img
 
 
 def generatePalette(hue: int, availableColors: np.typing.ArrayLike):
@@ -70,7 +79,7 @@ def generatePalette(hue: int, availableColors: np.typing.ArrayLike):
     # The V component dictates the brightness value.
     vComponents = np.linspace(0.0, 1.0, len(availableColors), dtype=np.float32)
     
-    colorLUT    = { np.float32(availableColors[i]): [hue, sComponents[i], vComponents[i]] for i in range(len(availableColors))}
+    colorLUT    = { availableColors[i]: [hue, sComponents[i], vComponents[i]] for i in range(len(availableColors))}
 
     return colorLUT
 

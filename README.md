@@ -1,29 +1,44 @@
 # Image Studio
 
-Welcome to **Image Studio**!
+Welcome 👋!
 
-This repo is a pet project of mine where I code a range of different image processing techniques. 
-The main goal is to learn more about image processing by coding certain techniques by hand rather than 
-using existing libraries. 
-
+**Image Studio** is a pet project of mine where I code a range of different image processing techniques. 
+My main goal with Image Studio is to learn more about image processing by coding algorithms that I find interesting from scratch rather than using existing libraries. 
 
 ## Showcase 
 
 
 ### SIMD-Friendly 🚀
 
-Working with images is a great candidate for taking advantage of [SIMD operations](https://en.wikipedia.org/wiki/Single_instruction,_multiple_data) since images are essentially large arrays of pixel data, and the same operations can be applied to many pixels at the same time. 
+Working with images often requires performing operations on thousands of pixels. Since images are essentially large arrays of pixel data, and the same operations can be applied to many pixels at the same time, this makes them **ideal candidates for [SIMD acceleration](https://en.wikipedia.org/wiki/Single_instruction,_multiple_data)**.
 
-This allows me to fully leverage SIMD with Numpy vectorization to make the code go really fast! I try to implement SIMD code in as much of the codebase as possible. I especifically chose Numpy for this because Numpy
-implements its SIMD operations with CPU-centric C++ vectorization, meaning that the code works on a lot of different devices. The alternative would be to implement SIMD code that runs on the GPU, but since I have an Nvidia GPU, this
-could lock out users with AMD and Intel GPUs because of CUDA. For this reason I chose to use Numpy, since this way the code remains fast and efficient across a wide range of devices, regardless of GPU vendor, keeping it truly GPU-agnostic.
+Implementing SIMD code often requires **major rewrites and optimizations**, and the process is often not very straightforward, but it is still very much worth it!
+
+The speedup I got after implementing vectorization is massive. For reference, my Ryzen 7 5700X3D can **quantize**, **dither** and **convert the color palette of an 8K image in around 15 seconds**. Without vectorization, the same operations on the same image took over **40 minutes**. So, in a way, you could say that the code in this repo is **8K-ready**! 😁
+
+⚠️ **Vectorization is not the same as multithreading**! Vectorization leverages **[Vector Processors](https://en.wikipedia.org/wiki/Vector_processor)** that exist on modern CPUs. These Vector Units are optimized for running SIMD code for multiple data at once. **However, SIMD acceleration still runs on a single CPU thread**! So don't worry if you don't see multiple CPU cores under load!
+
+Theoretically speaking the speedup could be even greater if I also implemented **multithreading combined with vectorization** - which would distribute work across multiple CPU cores while still using SIMD in each core. However, since my current implementation already processes an **8K image in a very reasonable amount of time**, I haven't prioritized multithreading yet.
 
 
 ### Color Palette Conversion 🎨
 
-My color palette conversion works like digital [Color Grading](https://en.wikipedia.org/wiki/Color_grading). The original image is converted to grayscale, dithered to remove color banding, and then a [Color LUT](https://en.wikipedia.org/wiki/3D_lookup_table) maps each grayscale value to a different HSV value. The core idea is to associate color with a single channel in the image, rather than with 3 channels, like it is with RGB. This makes it easier to manipulate color, and for this reason I used the [HSV colorspace](https://en.wikipedia.org/wiki/HSL_and_HSV).
+This feature works similarly to digital [Color Grading](https://en.wikipedia.org/wiki/Color_grading). 
 
-After a Hue is specified with the -p option, a color palette for that Hue will be created on-the-fly. Currently it only suports color palettes of a single Hue.
+Here's how it works:
+
+1. Grayscale Conversion: The original image is converted to grayscale.
+
+2. Dithering: Dithering is applied to remove color banding.
+
+3. Color Mapping - A [Color LUT](https://en.wikipedia.org/wiki/3D_lookup_table) (Lookup Table) maps each grayscale value to a specific HSV value.
+
+
+The core idea is to **associate color with a single channel in the image**, rather than with 3 channels, like it is with RGB. This makes it much easier to manipulate color, and for this reason I opted for the [HSV colorspace](https://en.wikipedia.org/wiki/HSL_and_HSV).
+
+After a **Hue** is specified with the ```-p``` option, a **color palette for that Hue will be created on-the-fly**. 
+
+📌 Currently this feature only suports color palettes of a single Hue, but I intend to implement support for multi-hue color palettes.
 
 Some examples:
 
@@ -42,10 +57,17 @@ Some examples:
 
 ### Quantization and Dithering 🟦 🟧 🟩 ⬜
 
-Quantization works by reducing the number of colors in an image.
+**Quantization** works by reducing the number of colors in an image by grouping similar colors together.  **Quantizing the image causes major [Color Banding](https://en.wikipedia.org/wiki/Colour_banding)**.
 
-Dithering works by distributing pixels in a way that makes the image appear to have more colors than it actually does. This creates the illusion of a wider color palette. I implemented two dithering algorithms: [Floyd-Steinberg algorithm](https://en.wikipedia.org/wiki/Floyd%E2%80%93Steinberg_dithering) or with [Ordered dithering](https://en.wikipedia.org/wiki/Ordered_dithering). 
+**Dithering** is a fancy way of doing quantization. It works by quantizing the image and then distributing pixels in a way that creates the illusion of a wider color palette. 
 
+I have implemented two dithering algorithms:
+
+* [Floyd-Steinberg algorithm](https://en.wikipedia.org/wiki/Floyd%E2%80%93Steinberg_dithering)
+
+* [Ordered dithering](https://en.wikipedia.org/wiki/Ordered_dithering)
+
+**Table of Comparisons**
 
 | **Category**         | **Original Image**                                          | **Quantized  Image (4 Colors)**                                   | **Quantized Image (4 Colors) + Dithering (Ordered Dithering)**| **Quantized Image (4 Colors) + Dithering (Floyd-Steinberg Dithering)**|
 |----------------------|----------------------------------------------------|----------------------------------------------------|-----------------------------------------------------|-----------------------------------------------------|
@@ -58,18 +80,17 @@ Dithering works by distributing pixels in a way that makes the image appear to h
 
 ### Running the code 🛠️
 
-Install the dependencies with
+1️⃣ Install the dependencies with
 
     pip install -r requirements.txt
 
-Next, run the code with
+2️⃣ Next, run the code with
 
     python3 main.py -i path/to/image
 
 
-
-You can specify what operations you want by the command line.  For example, to quantize an image with 8 colors, you could run
+3️⃣ You can specify what operations you want by the command line.  For example, to quantize an image with 8 colors, you could run
 
     python3 main.py -i path/to/image --quantize 8
 
-Please check the file [include/parser.py](include/parser.py) displays all the valid options.
+For a full list of available options, check out [include/parser.py](include/parser.py). This file contains all the valid operations.
