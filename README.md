@@ -12,7 +12,7 @@ using existing libraries.
 
 ### SIMD-Friendly 🚀
 
-Working with images is a great candidate for taking advantage of [SIMD operations](https://en.wikipedia.org/wiki/Single_instruction,_multiple_data) since images are essentially large arrays of pixel data, the same operations can be applied to many pixels at the same time. 
+Working with images is a great candidate for taking advantage of [SIMD operations](https://en.wikipedia.org/wiki/Single_instruction,_multiple_data) since images are essentially large arrays of pixel data, and the same operations can be applied to many pixels at the same time. 
 
 This allows me to fully leverage SIMD with Numpy vectorization to make the code go really fast! I try to implement SIMD code in as much of the codebase as possible. I especifically chose Numpy for this because Numpy
 implements its SIMD operations with CPU-centric C++ vectorization, meaning that the code works on a lot of different devices. The alternative would be to implement SIMD code that runs on the GPU, but since I have an Nvidia GPU, this
