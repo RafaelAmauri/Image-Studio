@@ -1,28 +1,9 @@
 import numpy as np
-from skimage.color import hsv2rgb as sk_hsv2rgb
-
-def hsv2rgb(hsvImg: np.typing.ArrayLike) -> np.typing.ArrayLike:
-    """Coming soon!
-
-    Args:
-        img (np.typing.ArrayLike): The HSV image.
-
-    Returns:
-        np.typing.ArrayLike: The RGB Image
-    """
-
-    hsvImg = hsvImg / (360, 1, 1)
-    rgbImg = sk_hsv2rgb(hsvImg)
-    rgbImg = rgbImg * 255
-    
-    rgbImg = np.asarray(rgbImg, dtype=np.uint8)
-
-    return rgbImg
 
 
 def rgb2hsv(img: np.typing.ArrayLike) -> np.typing.ArrayLike:
     """
-    Converts an image from the RGB colorspace into the HSV colorspace (https://en.wikipedia.org/wiki/HSL_and_HSV)!
+    Converts an image from the RGB colorspace into the HSV colorspace (https://en.wikipedia.org/wiki/HSL_and_HSV#From_RGB)!
 
     WARNING: Lots of comments! I tried to make it as easy to understand as possible!
 
@@ -32,9 +13,6 @@ def rgb2hsv(img: np.typing.ArrayLike) -> np.typing.ArrayLike:
     Returns:
         np.typing.ArrayLike: The HSV image.
     """
-    # The specific formula for converting from RGB to HSV is in https://en.wikipedia.org/wiki/HSL_and_HSV#From_RGB
-    # This is a vectorized version made with numpy.
-
     # Convert from np.uint8 to np.float32
     img = img.astype(np.float32)
     
@@ -151,3 +129,76 @@ def rgb2hsv(img: np.typing.ArrayLike) -> np.typing.ArrayLike:
     hsvImg = np.reshape(hsvImg, originalImgShape)
     
     return hsvImg
+
+
+
+def hsv2rgb(hsvImg: np.typing.ArrayLike) -> np.typing.ArrayLike:
+    """
+    The formula for conversion can be found in https://en.wikipedia.org/wiki/HSL_and_HSV#HSV_to_RGB
+
+    
+    Args:
+        hsvImg (np.typing.ArrayLike): The HSV image.
+
+    Returns:
+        np.typing.ArrayLike: The RGB Image
+    """
+    # Save the original image dimensions and reshape the array
+    originalShape = hsvImg.shape
+    hsvImg = hsvImg.reshape(-1, hsvImg.shape[-1])
+
+    # Separate each of the channels in the HSV image
+    hueChannel        = hsvImg[..., 0]
+    saturationChannel = hsvImg[..., 1]
+    valueChannel      = hsvImg[..., 2]
+
+    # And divide the Hues by 60.
+    hueChannel        = hueChannel / 60
+
+    # The chroma is just the intensity difference between the darkest and brightest color in the RGB 
+    # space at a given “slice” of hue.
+    chromaComponent   = valueChannel * saturationChannel
+
+    # X is essentially how far along that slice we are as the hue moves between the 
+    # “corners” of the color hexagon (hence the mod 2).
+    x = chromaComponent * (1 - np.abs((hueChannel % 2 - 1)))
+    
+    # Start the image as all zeros.
+    rgbImg = np.zeros_like(hsvImg)
+
+    # Here we have to find a mask for when the value in the hue channel (that we divided by 60)
+    # is between these pairs.
+    mask0h1 = (hueChannel >= 0) & (hueChannel < 1)
+    mask1h2 = (hueChannel >= 1) & (hueChannel < 2)
+    mask2h3 = (hueChannel >= 2) & (hueChannel < 3)
+    mask3h4 = (hueChannel >= 3) & (hueChannel < 4)
+    mask4h5 = (hueChannel >= 4) & (hueChannel < 5)
+    mask5h6 = (hueChannel >= 5) & (hueChannel < 6)
+    
+    # Now, for each mask, we reassign the values like so. We unfortunately can't do this more efficiently because not only the mask changes, but also the order
+    # of each new component. Sometimes it's Chroma, X, 0, other times it's X, Chroma, 0, etc.
+    rgbImg[mask0h1] = np.stack([chromaComponent[mask0h1],           x[mask0h1],                         np.zeros_like(hueChannel[mask0h1])], axis=-1)
+    rgbImg[mask1h2] = np.stack([x[mask1h2],                         chromaComponent[mask1h2],           np.zeros_like(hueChannel[mask1h2])], axis=-1)
+    rgbImg[mask2h3] = np.stack([np.zeros_like(hueChannel[mask2h3]), chromaComponent[mask2h3],           x[mask2h3]],                         axis=-1)
+    rgbImg[mask3h4] = np.stack([np.zeros_like(hueChannel[mask3h4]), x[mask3h4],                         chromaComponent[mask3h4]],           axis=-1)
+    rgbImg[mask4h5] = np.stack([x[mask4h5],                         np.zeros_like(hueChannel[mask4h5]), chromaComponent[mask4h5]],           axis=-1)
+    rgbImg[mask5h6] = np.stack([chromaComponent[mask5h6],           np.zeros_like(hueChannel[mask5h6]), x[mask5h6]],                         axis=-1)
+
+
+    # 'm' is an offset that lifts the [0..chroma] range to [m..(m+chroma)], so that the final R, G and B channels each end up in [0..1] after adding m.
+    m = valueChannel - chromaComponent
+
+    # Here is where we sum 'm' to each channel    
+    rgbImg = rgbImg + np.stack([m, m, m], axis=-1)
+
+    # And multiply by 255 to put them in the channels in the [0, 255] range
+    rgbImg = rgbImg * 255
+
+    # Convert to unsigned int8
+    rgbImg = np.asarray(rgbImg, dtype=np.uint8)
+
+    # And reshape back into the original shape
+    rgbImg = rgbImg.reshape(originalShape)
+    
+    # Done!
+    return rgbImg
