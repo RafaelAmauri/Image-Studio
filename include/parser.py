@@ -19,4 +19,8 @@ def make_parser():
     parser.add_argument('-p', '--palette', type=int, default=None,
                         help="Specify a hue value (google HSV color wheel) to convert the image to a different color palette. Super recommended to also use the -g option, because converting the color palette of an RGB image tends to give weird results.")
 
+    parser.add_argument('-pr', '--palette-range', type=int, default=0,
+                       help="By how much the color palette can vary. Default = 0")
+    
+
     return parser

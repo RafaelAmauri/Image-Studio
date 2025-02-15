@@ -41,7 +41,7 @@ def main(args):
 
         # Change the color palette
         if args.palette is not None:
-            colorLUT = colormapping.generatePalette(args.palette, availableColors)
+            colorLUT = colormapping.generatePalette(args.palette, availableColors, args.palette_range)
             
             hsvImg = colorspace.rgb2hsv(img)
             hsvImg = colormapping.changePalette(hsvImg, colorLUT)
