@@ -23,9 +23,9 @@ Here's how it works:
 
 The core idea is to **associate color with a single channel in the image**, rather than with 3 channels, like it is with RGB. This makes it much easier to manipulate color, and for this reason I opted for the [HSV colorspace](https://en.wikipedia.org/wiki/HSL_and_HSV).
 
-After a **Hue** is specified with the ```-p``` option, a **color palette for that Hue will be created on-the-fly**. 
+After a **Base Hue** is specified with the ```-p``` option, a **color palette for that Hue will be created on-the-fly**. 
 
-📌 Currently this feature only suports color palettes of a single Hue, but I intend to implement support for multi-hue color palettes.
+It's also possible to specify a hue range with the ```-pr``` option. This controls how much other the available hues in the palette can deviate from the Base Hue. For more information, read the Wiki!
 
 Some examples:
 
