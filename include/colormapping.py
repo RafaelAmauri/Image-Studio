@@ -63,29 +63,65 @@ def changeColorPaletteGrayscale(img: np.typing.ArrayLike, LUT: typing.Dict) -> n
     return img
 
 
-def changeColorPaletteRGB(img: np.typing.ArrayLike, LUT: typing.Dict, hueChannelUint16) -> np.typing.ArrayLike:
+def changeColorPaletteRGB(img: np.typing.ArrayLike, LUT: typing.Dict) -> np.typing.ArrayLike:
     """This function converts the color palette within an HSV image into a specified color palette!
     This works as a traditional color LUT (https://en.wikipedia.org/wiki/3D_lookup_table).
     The image should be black and white.
 
     Args:
-        img (np.typing.ArrayLike): The HSV image
-        LUT (typing.Dict): The color LUT. Must be in the following format: { originalColor: newColor }
-        isRGB
+        img (np.typing.ArrayLike) : The HSV image
+        LUT (typing.Dict)         : The color LUT. Must be in the following format: { originalColor: newColor }
     Returns:
         np.typing.ArrayLike: The HSV image with the new color palette!
     """
+    # The early implementation of this function was a mask that was applied for each pixel with a Hue
+    # channel that matched each key in the LUT. This was slow for two reasons:
     
-    # Create a mapping for every possible Hue value
-    originalHueHashMap = np.arange(65535, dtype=np.float32) 
+    # * There are too many keys! Small images without grayscale conversion usually have around 500 different hues, which is okay,
+    # but images with large resolutions can get up to 2000 unique hues. This makes it really expensive to generate and apply a mask
+    # for each of them.
 
-    # And assign the correct value
-    for originalHue, hsvValues in LUT.items():
-        originalHueHashMap[originalHue] = hsvValues[0]
+    # * The values are originally in np.float32, which is fine, but the Vector Processors in modern CPUs tend to be limited in size,
+    # so converting from np.float32 to a data type that uses less memory is a plus. Also, since operations on integers tend to be
+    # much faster than operations on floating points, we can get a nice speedup if we convert from np.float32 to np.uint16
+
+    # That is the code idea behind this function. We convert the Hue channel from the range [0, 360] to the range [0, 65535].
+    # This give us 65535 different possible hues while using np.uint16, which is much faster for
+    # vectorization than np.float16 or np.float32.
     
-    hueChannelUint16 = originalHueHashMap[hueChannelUint16]
+    # The max possible value for a uint16
+    maxUint16 = 0xFFFF
+    
+    # And convert the Hue channel from [0, 360] to [0, maxUint16] in the image.
+    hueChannelUint16 = (img[..., 0] / 360 * maxUint16).astype(np.uint16)
 
-    img[..., 0] = hueChannelUint16
+    # Separate the keys from the values in the LUT. Since we'll be looking up
+    # for values in the [0, maxUint16] range, we have to convert the keys to that
+    # range as well.
+    LUTOriginalHues = np.asarray(list(LUT.keys()))
+    LUTOriginalHues = (LUTOriginalHues / 360 * maxUint16).astype(np.uint16)
+
+    LUTNewHSVValues = np.asarray(list(LUT.values()))
+
+
+    # Create a huge array from 0 to maxUint16 that maps
+    # every possible value for original Hues to the new values.
+    hueHashMap = np.arange(maxUint16, dtype=np.float32)
+
+    # Our hueHashMap is a huge array. For every key in the LUT, we modify the 
+    # corresponding position that it maps to in the hueHashMap to store the new Hue.
+    # Don't worry, the newHue is already in the [0, 360] range, so no conversion is needed.
+    for originalHue, hsvValue in zip(LUTOriginalHues, LUTNewHSVValues):
+        newHue = hsvValue[0]
+        hueHashMap[originalHue] = newHue
+    
+    # The new hue channel is the old values from the hueChannelUint16
+    # mapped (using our hashmap) to their new values.
+    newHueChannel = hueHashMap[hueChannelUint16]
+
+    # Now simply change the hue channel in the original image to the new hue
+    # channel with the mapped values :)
+    img[..., 0] = newHueChannel
     
     return img
 

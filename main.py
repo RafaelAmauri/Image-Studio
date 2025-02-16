@@ -43,15 +43,25 @@ def main(args):
             hsvImg   = colormodel.rgb2hsv(img)
 
             # This is kinda crazy, but we have to use separate functions depending if the image is Grayscale or if it is RGB.
-            # TODO Write why
+            # That's because if the image is in grayscale, then the available colors are... well... the array availableColors.
+
+            # But if the image is RGB, then the available colors are all the unique values in the Hue channel.
+            # That's because even though we quantize the image with an arbitrary number of colors, that reduced number of
+            # colors can COMBINE into different colors because of the 3 channels. For example, if there's only 3 colors for each channel:
+            # [0, 127, 255], then there's 3 * 3 * 3 different combinations of colors. ]
+            # R = 0, G = 0, B = 0
+            # R = 0, G = 0, B = 127
+            # R = 0, G = 0, B = 255
+            # R = 0, G = 127, B = 0
+            # and so on... Which doesn't happen when the image is grayscale. So this ends up giving us a large number of different Hues.
+            # And that's why the colors available are all the unique values in hsvImg[..., 0] :)
+            
             if args.grayscale:
                 colorLUT = colormapping.generatePalette(args.hue, availableColors, args.hue_range, args.hue_reversed)
                 hsvImg   = colormapping.changeColorPaletteGrayscale(hsvImg, colorLUT)
             else:
-                # Convert the hue to the range [0, 65535]
-                hueChannelUint16 = (hsvImg[..., 0] / 360 * 65535).astype(np.uint16)
-                colorLUT = colormapping.generatePalette(args.hue, np.unique(hueChannelUint16), args.hue_range, args.hue_reversed)
-                hsvImg   = colormapping.changeColorPaletteRGB(hsvImg, colorLUT, hueChannelUint16)
+                colorLUT = colormapping.generatePalette(args.hue, np.unique(hsvImg[..., 0]), args.hue_range, args.hue_reversed)
+                hsvImg   = colormapping.changeColorPaletteRGB(hsvImg, colorLUT)
                 
 
             img  = colormodel.hsv2rgb(hsvImg)
