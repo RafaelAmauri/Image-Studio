@@ -25,7 +25,7 @@ The core idea is to **associate color with a single channel in the image**, rath
 
 After a **Base Hue** is specified, a **color palette for that Hue will be created on-the-fly**. 
 
-It's also possible to specify a **Hue Range**. This controls how much the available hues in the color palette can deviate from the Base Hue. For more information, read the Wiki!
+It's also possible to specify a **Hue Range**. This controls how much the available hues in the color palette can deviate from the Base Hue. For more information, read the [Wiki Page](https://github.com/RafaelAmauri/Image-Studio/wiki/Color-Palette-Conversion#hue-range)!
 
 Some examples:
 
