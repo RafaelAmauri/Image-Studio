@@ -32,7 +32,7 @@ Some examples:
 
 | **Original Image (Credit to [Keith Griego](https://www.artstation.com/artwork/dKR0xw) on Artstation), 16 Million Colors** | **Green Color Palette, 32 Colors, Base Hue = 130, Hue Range = 40** | **Blue Color Palette, 32 Colors, Base Hue = 260, Hue Range = 65, Reversed Hue = True** |
 |----------|----------|----------|
-| <img src="assets/animegirl_original.png" width="85%"> |  <img src="assets/animegirl_green.png" width="100%"> |  <img src="assets/animegirl_blue.png" width="100%">|
+| ![Anime girl - original](assets/animegirl_original.png) |  ![Anime girl - green](assets/animegirl_green.png) |  ![Anime girl - Blue](assets/animegirl_blue.png)|
 
 
 
