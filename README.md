@@ -27,12 +27,16 @@ After a **Base Hue** is specified, a **color palette for that Hue will be create
 
 It's also possible to specify a **Hue Range**. This controls how much the available hues in the color palette can deviate from the Base Hue. For more information, read the [Wiki Page](https://github.com/RafaelAmauri/Image-Studio/wiki/Color-Palette-Conversion#hue-range)!
 
-Some examples:
+### Some examples:
+
+**Original Image (Credit to [Keith Griego](https://www.artstation.com/artwork/dKR0xw) on Artstation), 16 Million Colors** 
+
+![Anime girl - original](assets/animegirl_original.png)
 
 
-| **Original Image (Credit to [Keith Griego](https://www.artstation.com/artwork/dKR0xw) on Artstation), 16 Million Colors** | **Green Color Palette, 32 Colors, Base Hue = 130, Hue Range = 40** | **Blue Color Palette, 32 Colors, Base Hue = 260, Hue Range = 65, Reversed Hue = True** |
-|----------|----------|----------|
-| ![Anime girl - original](assets/animegirl_original.png) |  ![Anime girl - green](assets/animegirl_green.png) |  ![Anime girl - Blue](assets/animegirl_blue.png)|
+| **Green Color Palette, 32 Colors, Base Hue = 130, Hue Range = 40** | **Blue Color Palette, 32 Colors, Base Hue = 260, Hue Range = 65, Reversed Hue = True** |
+|----------|----------|
+|  ![Anime girl - green](assets/animegirl_green.png) |  ![Anime girl - Blue](assets/animegirl_blue.png)|
 
 
 
