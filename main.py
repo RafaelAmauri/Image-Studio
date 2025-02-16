@@ -9,14 +9,13 @@ import include.parser as parser
 
 
 def main(args):
-    enableGrayscale = args.grayscale
 
     # Open the image
     img = PIL.Image.open(args.image)
 
     # Convert to grayscale if so desired. The change back to RGB is to add a 3-channel dimension to the image.
     # This simplifies the integration with the rest of the code.
-    if enableGrayscale:
+    if args.grayscale:
         img = img.convert("L")
         img = img.convert("RGB")
 
@@ -41,11 +40,21 @@ def main(args):
 
         # Change the color palette acording to a user-specified hue
         if args.hue is not None:
-            colorLUT = colormapping.generatePalette(args.hue, availableColors, args.hue_range, args.reversed_palette)
-            
-            hsvImg = colormodel.rgb2hsv(img)
-            hsvImg = colormapping.changePalette(hsvImg, colorLUT)
-            img    = colormodel.hsv2rgb(hsvImg)
+            hsvImg   = colormodel.rgb2hsv(img)
+
+            # This is kinda crazy, but we have to use separate functions depending if the image is Grayscale or if it is RGB.
+            # TODO Write why
+            if args.grayscale:
+                colorLUT = colormapping.generatePalette(args.hue, availableColors, args.hue_range, args.hue_reversed)
+                hsvImg   = colormapping.changeColorPaletteGrayscale(hsvImg, colorLUT)
+            else:
+                # Convert the hue to the range [0, 65535]
+                hueChannelUint16 = (hsvImg[..., 0] / 360 * 65535).astype(np.uint16)
+                colorLUT = colormapping.generatePalette(args.hue, np.unique(hueChannelUint16), args.hue_range, args.hue_reversed)
+                hsvImg   = colormapping.changeColorPaletteRGB(hsvImg, colorLUT, hueChannelUint16)
+                
+
+            img  = colormodel.hsv2rgb(hsvImg)
 
 
     # Save the image

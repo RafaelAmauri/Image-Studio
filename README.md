@@ -14,16 +14,17 @@ This feature works similarly to digital [Color Grading](https://en.wikipedia.org
 
 Here's how it works:
 
-1. Grayscale Conversion: The original image is converted to grayscale.
+**1. Quantization with Dithering**: The image is quantized, meaning we reduce the number of colors in it. We also
+use dithering to avoid color banding.
 
-2. Dithering: Dithering is applied to remove color banding.
+**2. Conversion to HSV**: The image is converted to the HSV color model. This is because in HSV the color is associated with
+a single channel - the Hue (H) channel, unlike in RGB where color information is spread across 3 different channels. This makes it
+way easier to manipulate color information.
 
-3. Color Mapping - A [Color LUT](https://en.wikipedia.org/wiki/3D_lookup_table) (Lookup Table) maps each grayscale value to a specific HSV value.
+**3. Color Mapping**: A [Color LUT](https://en.wikipedia.org/wiki/3D_lookup_table) (Lookup Table) maps each grayscale value to a specific HSV value.
 
 
-The core idea is to **associate color with a single channel in the image**, rather than with 3 channels, like it is with RGB. This makes it much easier to manipulate color, and for this reason I opted for the [HSV color model](https://en.wikipedia.org/wiki/HSL_and_HSV).
-
-After a **Base Hue** is specified, a **color palette for that Hue will be created on-the-fly**. 
+After a **Base Hue** is specified, a **color palette for that Hue will be created on-the-fly**.
 
 It's also possible to specify a **Hue Range**. This controls how much the available hues in the color palette can deviate from the Base Hue. For more information, read the [Wiki Page](https://github.com/RafaelAmauri/Image-Studio/wiki/Color-Palette-Conversion#hue-range)!
 
@@ -31,12 +32,33 @@ It's also possible to specify a **Hue Range**. This controls how much the availa
 
 
 
+**Original Image, 16 Million Colors**
+
+![City - Original](assets/city_original.png)
 
 
-| **Original Image (Credit to [Keith Griego](https://www.artstation.com/artwork/dKR0xw) on Artstation), 16 Million Colors**  | **Green Color Palette, 32 Colors, Base Hue = 130, Hue Range = 40** | **Blue Color Palette, 32 Colors, Base Hue = 260, Hue Range = 65, Reversed Hue = True** |
-|----------|----------|----------|
-| <img src="assets/animegirl_original.png" width="80%"> | <img src="assets/animegirl_green.png" width="100%"> |  <img src="assets/animegirl_blue.png" width="80%"> |
+**Cyan Color Palette, 32 Colors**
 
+![City - Cyan](assets/city_cyan.png)
+
+
+**Pink Color Palette, 32 Colors**
+
+
+![City - Pink](assets/city_pink.png)
+
+
+**Original Image (Credit to Keith Griego on Artstation), 16 Million Colors**
+
+![Girl - Original](assets/animegirl_original.png)
+
+**Green Color Palette, 32 Colors**
+
+![Girl - Green](assets/animegirl_green.png)
+
+**Blue Color Palette, 32 Colors**
+
+![Girl - Blue](assets/animegirl_blue.png)
 
 
 ## Quantization and Dithering 🟥 🟩 🟦 🟧 🟪

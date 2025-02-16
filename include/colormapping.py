@@ -28,7 +28,7 @@ def changeColor(img: np.typing.ArrayLike, LUT: typing.Dict) -> np.typing.ArrayLi
 
     
 
-def changePalette(img: np.typing.ArrayLike, LUT: typing.Dict) -> np.typing.ArrayLike:
+def changeColorPaletteGrayscale(img: np.typing.ArrayLike, LUT: typing.Dict) -> np.typing.ArrayLike:
     """This function converts the color palette within an HSV image into a specified color palette!
     This works as a traditional color LUT (https://en.wikipedia.org/wiki/3D_lookup_table).
     The image should be black and white.
@@ -36,7 +36,7 @@ def changePalette(img: np.typing.ArrayLike, LUT: typing.Dict) -> np.typing.Array
     Args:
         img (np.typing.ArrayLike): The HSV image
         LUT (typing.Dict): The color LUT. Must be in the following format: { originalColor: newColor }
-
+        isRGB
     Returns:
         np.typing.ArrayLike: The HSV image with the new color palette!
     """
@@ -45,21 +45,48 @@ def changePalette(img: np.typing.ArrayLike, LUT: typing.Dict) -> np.typing.Array
     # Convert the value channel to the range [0, 255]
     img = img * (1.0, 1.0, 255.0)
     img = img.astype(np.float32)
-
+    
     # Reshape img so it's a 1-D array of individual pixels
     img = img.reshape(-1, img.shape[-1])
-    
-    for key, hsvValues in LUT.items():
+
+    for originalGrayscale, hsvValues in LUT.items():
         # For each gray value in the LUT, use a mask to find the pixels where the 
         # brightness value (V channel) is the same as the one in the color LUT
-        maskGrayscaleOriginal = img[..., 2] == key
+        maskOriginalGrayscale = img[..., 2] == originalGrayscale
 
         # And change them with the new HSV values in the color LUT!
-        img[maskGrayscaleOriginal] = hsvValues
+        img[maskOriginalGrayscale] = hsvValues
 
     # Change the image back to the original shape
     img = img.reshape(originalImgShape)
+    
+    return img
 
+
+def changeColorPaletteRGB(img: np.typing.ArrayLike, LUT: typing.Dict, hueChannelUint16) -> np.typing.ArrayLike:
+    """This function converts the color palette within an HSV image into a specified color palette!
+    This works as a traditional color LUT (https://en.wikipedia.org/wiki/3D_lookup_table).
+    The image should be black and white.
+
+    Args:
+        img (np.typing.ArrayLike): The HSV image
+        LUT (typing.Dict): The color LUT. Must be in the following format: { originalColor: newColor }
+        isRGB
+    Returns:
+        np.typing.ArrayLike: The HSV image with the new color palette!
+    """
+    
+    # Create a mapping for every possible Hue value
+    originalHueHashMap = np.arange(65535, dtype=np.float32) 
+
+    # And assign the correct value
+    for originalHue, hsvValues in LUT.items():
+        originalHueHashMap[originalHue] = hsvValues[0]
+    
+    hueChannelUint16 = originalHueHashMap[hueChannelUint16]
+
+    img[..., 0] = hueChannelUint16
+    
     return img
 
 
@@ -120,7 +147,7 @@ def generatePalette(baseHue: int, availableColors: np.typing.ArrayLike, hueRange
         hueUpperBound =  (hueUpperBound + hueOffset) % 360
 
     # Now we can finally interpolate the values for our hues!
-    hueComponent = smoothLinspace(hueLowerBound, hueUpperBound, paletteSize, 1.15)
+    hueComponent = smoothLinspace(hueLowerBound, hueUpperBound, paletteSize, 1)
     
     # In case the offset exists, we need to convert our hue values back into their original
     # range.
