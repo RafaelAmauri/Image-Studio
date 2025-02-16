@@ -3,7 +3,7 @@ import numpy as np
 
 def rgb2hsv(img: np.typing.ArrayLike) -> np.typing.ArrayLike:
     """
-    Converts an image from the RGB colorspace into the HSV colorspace (https://en.wikipedia.org/wiki/HSL_and_HSV#From_RGB)!
+    Converts an image from the RGB color model into the HSV color model (https://en.wikipedia.org/wiki/HSL_and_HSV#From_RGB)!
 
     WARNING: Lots of comments! I tried to make it as easy to understand as possible!
 

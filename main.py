@@ -2,7 +2,7 @@ import numpy as np
 import PIL.Image
 
 import include.colormapping as colormapping
-import include.colorspace as colorspace
+import include.colormodel as colormodel
 import include.quantize as quantize
 import include.dither as dither
 import include.parser as parser
@@ -39,13 +39,13 @@ def main(args):
         if args.dithering is None:
             img = quantize.quantize(img, availableColors)
 
-        # Change the color palette
-        if args.palette is not None:
-            colorLUT = colormapping.generatePalette(args.palette, availableColors, args.palette_range)
+        # Change the color palette acording to a user-specified hue
+        if args.hue is not None:
+            colorLUT = colormapping.generatePalette(args.hue, availableColors, args.hue_range, args.reversed_palette)
             
-            hsvImg = colorspace.rgb2hsv(img)
+            hsvImg = colormodel.rgb2hsv(img)
             hsvImg = colormapping.changePalette(hsvImg, colorLUT)
-            img    = colorspace.hsv2rgb(hsvImg)
+            img    = colormodel.hsv2rgb(hsvImg)
 
 
     # Save the image

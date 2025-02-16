@@ -63,14 +63,14 @@ def changePalette(img: np.typing.ArrayLike, LUT: typing.Dict) -> np.typing.Array
     return img
 
 
-def generatePalette(baseHue: int, availableColors: np.typing.ArrayLike, paletteRange: int):
+def generatePalette(baseHue: int, availableColors: np.typing.ArrayLike, hueRange: int, isReversed: bool):
     """Given a initial Hue, it generates a new color palette with len(availableColors) different gradients of the hue parameter.
     Note that the hue in the palette is the same, the only change is in the saturation and brightness values of the given hue.
 
     Args:
         baseHue (int)                        : The hue in HSV format. Should be a value between 0 and 359.
         availableColors (np.typing.ArrayLike): The availableColors that were used for quantization.
-        paletteRange (int)                   : By how much the hues in the palette can deviate from the baseHue.
+        hueRange (int)                       : By how much the hues in the palette can deviate from the baseHue.
 
     Returns:
         dict: A color LUT, where each value in the availableColors array is mapped to a HSV value.
@@ -101,19 +101,43 @@ def generatePalette(baseHue: int, availableColors: np.typing.ArrayLike, paletteR
     paletteSize = len(availableColors)
 
     # The S component dictates the saturation value.
-    sComponent = smoothLinspace(0.2, 0.8, paletteSize, 1.5)
+    sComponent = smoothLinspace(0.2, 1.0, paletteSize, 1.15)
     # The V componen dictates the brightness value.
     vComponent = smoothLinspace(0.0, 1.0, paletteSize, 1.15)
 
-    # Calculate two analogous hues. They are in the range [baseHue - range, baseHue + range] 
-    analogousHue1    = (baseHue + paletteRange) % 360
-    analogousHue2    = (baseHue - paletteRange) % 360
+    # Calculate the bounds for our hue values.
+    hueLowerBound    = (baseHue - hueRange) % 360
+    hueUpperBound    = (baseHue + hueRange) % 360
 
-    hueComponent = smoothLinspace(min(analogousHue1, analogousHue2), max(analogousHue1, analogousHue2), paletteSize, 1.15)
+    # For example, if baseHue = 10 and hueRange = 20, we need to make sure that the hueComponent
+    # is in the range [350, 30]. If we don't do this, it will go from [30, 350], the opposite of what
+    # we want. We use hueOffset to fix this edge case.
+    needsAdjusting   = False
+    if hueLowerBound > hueUpperBound:
+        needsAdjusting = True
+        hueOffset = 360 - hueLowerBound
+        hueLowerBound =  (hueLowerBound + hueOffset) % 360
+        hueUpperBound =  (hueUpperBound + hueOffset) % 360
 
+    # Now we can finally interpolate the values for our hues!
+    hueComponent = smoothLinspace(hueLowerBound, hueUpperBound, paletteSize, 1.15)
+    
+    # In case the offset exists, we need to convert our hue values back into their original
+    # range.
+    if needsAdjusting:
+        hueComponent    = hueComponent - hueOffset
+        negativeHueMask = hueComponent < 0
+        hueComponent[negativeHueMask] += 360
+
+    # Create the color LUT
     colorLUT = dict()
 
+    if isReversed:
+        hueComponent = hueComponent[:: -1]
+
+    # And finally add the values to it
     for idx in range(paletteSize):
         colorLUT[availableColors[idx]] = [hueComponent[idx], sComponent[idx], vComponent[idx]]
 
+    
     return colorLUT

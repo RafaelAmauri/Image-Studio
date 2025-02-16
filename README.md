@@ -21,25 +21,19 @@ Here's how it works:
 3. Color Mapping - A [Color LUT](https://en.wikipedia.org/wiki/3D_lookup_table) (Lookup Table) maps each grayscale value to a specific HSV value.
 
 
-The core idea is to **associate color with a single channel in the image**, rather than with 3 channels, like it is with RGB. This makes it much easier to manipulate color, and for this reason I opted for the [HSV colorspace](https://en.wikipedia.org/wiki/HSL_and_HSV).
+The core idea is to **associate color with a single channel in the image**, rather than with 3 channels, like it is with RGB. This makes it much easier to manipulate color, and for this reason I opted for the [HSV color model](https://en.wikipedia.org/wiki/HSL_and_HSV).
 
-After a **Base Hue** is specified with the ```-p``` option, a **color palette for that Hue will be created on-the-fly**. 
+After a **Base Hue** is specified, a **color palette for that Hue will be created on-the-fly**. 
 
-It's also possible to specify a hue range with the ```-pr``` option. This controls how much other the available hues in the palette can deviate from the Base Hue. For more information, read the Wiki!
+It's also possible to specify a hue range. This controls how much the available hues in the color palette can deviate from the Base Hue. For more information, read the Wiki!
 
 Some examples:
 
-**Original Image (Credit to [Keith Griego](https://www.artstation.com/artwork/dKR0xw) on Artstation) - 16 Million Colors** 
 
-![Anime girl - original](assets/animegirl_original.png)
+| **Original Image (Credit to [Keith Griego](https://www.artstation.com/artwork/dKR0xw) on Artstation), 16 Million Colors** | **Green Color Palette, 32 Colors, Base Hue = 130, Hue Range = 40** | **Blue Color Palette, 32 Colors, Base Hue = 260, Hue Range = 65, Reversed Hue = True** |
+|----------|-----------|----------------|
+| ![Anime girl - original](assets/animegirl_original.png) |  ![Anime girl - green](assets/animegirl_green.png) |  ![Anime girl - Blue](assets/animegirl_blue.png)|
 
-**Cyan Color Palette - 32 Colors**
-
-![Anime girl - cyan](assets/animegirl_cyan.png)
-
-**Green Color Palette - 32 Colors**
-
-![Anime girl - green](assets/animegirl_green.png)
 
 
 ## Quantization and Dithering 🟥 🟩 🟦 🟧 🟪

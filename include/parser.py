@@ -16,11 +16,13 @@ def make_parser():
     parser.add_argument('-g', '--grayscale', action='store_true', default=False,
                         help='Converts the image to grayscale before processing. The output will also be a grayscale image.')
 
-    parser.add_argument('-p', '--palette', type=int, default=None,
+    parser.add_argument('-hue', type=int, default=None,
                         help="Specify a hue value (google HSV color wheel) to convert the image to a different color palette. Super recommended to also use the -g option, because converting the color palette of an RGB image tends to give weird results.")
 
-    parser.add_argument('-pr', '--palette-range', type=int, default=0,
-                       help="By how much the color palette can vary. Default = 0")
+    parser.add_argument('-hue-range', type=int, default=0, choices=range(0, 180), metavar="[0-179]",
+                       help="By how much the hue in the color palette can vary. Default = 0.")
     
+    parser.add_argument('--reversed-palette', action='store_true', default=False,
+                        help="Reverses the color pallete. Instead of [hue - hue_range, hue + hue_range], it changes to [hue + hue_range, hue - hue_range].")
 
     return parser
