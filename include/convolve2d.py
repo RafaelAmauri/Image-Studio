@@ -13,7 +13,7 @@ def convolve2d(img: np.typing.ArrayLike, kernel: np.typing.ArrayLike) -> np.typi
     Note: Technically this function does a Cross-correlation (https://en.wikipedia.org/wiki/Cross-correlation)
     instead of a convolution, but since:
     (1) I only intend to implement symmetrical kernels like Box Blur and Gaussian Blur, it doesn't matter.
-    (2) Some kernels that I intend to implement lik Sobel actually don't do a convolution 
+    (2) Some kernels that I intend to implement like Sobel actually don't do a convolution 
     but a cross-correlation
 
     then I don't see a reason to flip the kernel like it is formally required.
