@@ -6,6 +6,33 @@ a color model, check https://en.wikipedia.org/wiki/Color_model
 import numpy as np
 
 
+def rgb2grayscale(img: np.typing.ArrayLike) -> np.typing.ArrayLike:
+    """Converts an image from RGB to Grayscale. 
+    I am following this formula https://scikit-image.org/docs/stable/auto_examples/color_exposure/plot_rgb_to_gray.html
+    which states that the conversion weights for each channel should be 
+    
+    Y = 0.2125 R + 0.7154 G + 0.0721 B
+
+    because of how human vision works.
+
+    Args:
+        img (np.typing.ArrayLike): The RGB image
+
+    Returns:
+        np.typing.ArrayLike: Tge grayscale image
+    """
+    img     = img.astype(np.float64)
+
+    weights = np.array([0.2125, 0.7154, 0.0721])
+    
+    # This is pretty straightforward, its just a weighted sum.
+    img     = img * weights
+    img     = np.sum(img, axis=2).astype(np.uint8)
+
+    return img
+
+
+
 def rgb2hsv(img: np.typing.ArrayLike) -> np.typing.ArrayLike:
     """
     Converts an image from the RGB color model into the HSV color model (https://en.wikipedia.org/wiki/HSL_and_HSV#From_RGB)!
