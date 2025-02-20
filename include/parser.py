@@ -25,7 +25,7 @@ def make_parser():
     parser.add_argument('--hue-reversed', action='store_true', default=False,
                         help="Reverses the color pallete. Instead of [hue - hue_range, hue + hue_range], it changes to [hue + hue_range, hue - hue_range].")
 
-    parser.add_argument('--convolution', '-k', type=str, choices=["boxblur3x3", "boxblur5x5"], default=None,
+    parser.add_argument('--convolution', '-k', type=str, choices=["boxblur3x3", "boxblur5x5", "gaussian3x3", "gaussian5x5"], default=None,
                         help="Apply a convolution in the image. Choose from the available implemented convolution kernels.")
 
     return parser

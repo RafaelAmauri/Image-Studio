@@ -3,6 +3,8 @@ Numpy doesn't support 2d convolution operations, so I implemented my own.
 """
 
 import numpy as np
+from numpy.lib.stride_tricks import as_strided
+
 
 def convolve2d(img: np.typing.ArrayLike, kernel: np.typing.ArrayLike):
     """
@@ -16,7 +18,6 @@ def convolve2d(img: np.typing.ArrayLike, kernel: np.typing.ArrayLike):
     Returns:
         _type_: _description_
     """
-
     originalImgHeight, originalImgWidth = img.shape
     kernelHeight, kernelWidth           = kernel.shape
 
@@ -62,9 +63,10 @@ def convolve2d(img: np.typing.ArrayLike, kernel: np.typing.ArrayLike):
     validPixels   = img[pixelsFirstConvolve + increments]
 
     # Now we can finally do the convolution. Just do a dot product and then divide by the kernel size.
-    img = np.dot(validPixels, kernel) / (kernelHeight * kernelWidth)
+    img = np.dot(validPixels, kernel) / np.sum(kernel)
 
     # Reshape the convolved image into the original shape
     img = img.astype(np.uint8).reshape((originalImgHeight, originalImgWidth))
 
     return img
+    

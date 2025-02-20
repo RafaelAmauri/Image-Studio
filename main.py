@@ -69,7 +69,9 @@ def main(args):
     if args.convolution is not None:
         kernerlMap = {
                         "boxblur3x3": kernels.boxBlur3x3,
-                        "boxblur5x5": kernels.boxBlur5x5
+                        "boxblur5x5": kernels.boxBlur5x5,
+                        "gaussian3x3": kernels.gaussianBlur3x3,
+                        "gaussian5x5": kernels.gaussianBlur5x5
         }
 
         kernel = kernerlMap[args.convolution]
