@@ -14,19 +14,20 @@ def main(args):
 
     # Open the image
     img = PIL.Image.open(args.image)
+    img2 = np.asarray(img.convert("L")).astype(np.uint8)
+
+    img = np.asarray(img, dtype=np.uint8)
 
     # Convert to grayscale if so desired. The change back to RGB is to add a 3-channel dimension to the image.
     # This simplifies the integration with the rest of the code.
     if args.grayscale:
-        img = img.convert("L")
+        img = colormodel.rgb2grayscale(img)
 
-        # Add a fake 'channel' dimension. This makes it easier to interact with the rest of the code.
+        # Add a fake 'channel' dimension. This makes it easier to make grayscale images interact with the rest of the code.
         img = np.expand_dims(img, axis=2)
         img = np.repeat(img, repeats=3, axis=2)
 
 
-    img = np.asarray(img, dtype=np.uint8)
-    
     # If the user wants to quantize the image. args.quantize contains the number of colors available.
     if args.quantize is not None:
         # Creates a uniformily spaced color distribution. It's a uniform division from 0 to 255, with args.quantize different colors.
