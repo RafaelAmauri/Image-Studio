@@ -1,3 +1,8 @@
+"""
+Colormodel.py is where I implement my own color model conversions. For more clarification of what even is
+a color model, check https://en.wikipedia.org/wiki/Color_model
+"""
+
 import numpy as np
 
 

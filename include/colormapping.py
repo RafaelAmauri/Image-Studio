@@ -165,7 +165,7 @@ def generatePalette(baseHue: int, availableColors: np.typing.ArrayLike, hueRange
 
     # The S component dictates the saturation value.
     sComponent = smoothLinspace(0.2, 1.0, paletteSize, 1.15)
-    # The V componen dictates the brightness value.
+    # The V component dictates the brightness value.
     vComponent = smoothLinspace(0.0, 1.0, paletteSize, 1.15)
 
     # Calculate the bounds for our hue values.

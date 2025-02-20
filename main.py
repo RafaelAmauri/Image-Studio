@@ -2,8 +2,10 @@ import numpy as np
 import PIL.Image
 
 import include.colormapping as colormapping
+import include.convolve2d as convolve2d
 import include.colormodel as colormodel
 import include.quantize as quantize
+import include.kernels as kernels
 import include.dither as dither
 import include.parser as parser
 
@@ -17,11 +19,14 @@ def main(args):
     # This simplifies the integration with the rest of the code.
     if args.grayscale:
         img = img.convert("L")
-        img = img.convert("RGB")
+
+        # Add a fake 'channel' dimension. This makes it easier to interact with the rest of the code.
+        img = np.expand_dims(img, axis=2)
+        img = np.repeat(img, repeats=3, axis=2)
+
 
     img = np.asarray(img, dtype=np.uint8)
     
-
     # If the user wants to quantize the image. args.quantize contains the number of colors available.
     if args.quantize is not None:
         # Creates a uniformily spaced color distribution. It's a uniform division from 0 to 255, with args.quantize different colors.
@@ -47,15 +52,10 @@ def main(args):
 
             # But if the image is RGB, then the available colors are all the unique values in the Hue channel.
             # That's because even though we quantize the image with an arbitrary number of colors, that reduced number of
-            # colors can COMBINE into different colors because of the 3 channels. For example, if there's only 3 colors for each channel:
-            # [0, 127, 255], then there's 3 * 3 * 3 different combinations of colors. ]
-            # R = 0, G = 0, B = 0
-            # R = 0, G = 0, B = 127
-            # R = 0, G = 0, B = 255
-            # R = 0, G = 127, B = 0
-            # and so on... Which doesn't happen when the image is grayscale. So this ends up giving us a large number of different Hues.
-            # And that's why the colors available are all the unique values in hsvImg[..., 0] :)
-            
+            # colors can COMBINE INTO DIFFERENT colors because of the 3 channels. For example, if there's only 3 colors for each channel:
+            # [0, 127, 255], then there's 3 * 3 * 3 different combinations of colors.
+            # This is what ends up giving us a very large number of different Hues, and the reason why
+            # the colors available in the RGB image are the unique values in hsvImg[..., 0] instead of availableColors :)
             if args.grayscale:
                 colorLUT = colormapping.generatePalette(args.hue, availableColors, args.hue_range, args.hue_reversed)
                 hsvImg   = colormapping.changeColorPaletteGrayscale(hsvImg, colorLUT)
@@ -65,6 +65,15 @@ def main(args):
                 
 
             img  = colormodel.hsv2rgb(hsvImg)
+
+    if args.convolution is not None:
+        kernerlMap = {
+                        "boxblur3x3": kernels.boxBlur3x3,
+                        "boxblur5x5": kernels.boxBlur5x5
+        }
+
+        kernel = kernerlMap[args.convolution]
+        img    = np.stack([convolve2d.convolve2d(img[..., channel], kernel) for channel in range(img.shape[-1])], axis=2)
 
 
     # Save the image
