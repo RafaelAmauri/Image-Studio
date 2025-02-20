@@ -7,7 +7,7 @@ def make_parser():
     parser.add_argument('-i', '--image', type=str, required=True,
                         help="The image that is going to be processed.")
 
-    parser.add_argument('-q', '--quantize', type=int, default=None,
+    parser.add_argument('-q', '--quantize', type=int, default=255,
                         help='Quantizes the image according to an arbitrary number of colors. Does NOT dither the image, so expect major color banding.')
 
     parser.add_argument('-d', '--dithering', choices=["ordered", "floyd-steinberg"], default=None,
