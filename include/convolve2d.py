@@ -3,21 +3,29 @@ Numpy doesn't support 2d convolution operations, so I implemented my own.
 """
 
 import numpy as np
-from numpy.lib.stride_tricks import as_strided
 
 
-def convolve2d(img: np.typing.ArrayLike, kernel: np.typing.ArrayLike):
+def convolve2d(img: np.typing.ArrayLike, kernel: np.typing.ArrayLike) -> np.typing.ArrayLike:
     """
-    Performs a convolution operation (https://en.wikipedia.org/wiki/Convolution)
-    in a 2d image. Given a kernel.
+    Performs a convolution operation (https://en.wikipedia.org/wiki/Convolution) in a 2d image 
+    using a given kernel.
+
+    Note: Technically this function does a Cross-correlation (https://en.wikipedia.org/wiki/Cross-correlation)
+    instead of a convolution, but since:
+    (1) I only intend to implement symmetrical kernels like Box Blur and Gaussian Blur, it doesn't matter.
+    (2) Some kernels that I intend to implement lik Sobel actually don't do a convolution 
+    but a cross-correlation
+
+    then I don't see a reason to flip the kernel like it is formally required.
 
     Args:
-        img (np.typing.ArrayLike): _description_
-        kernel (np.typing.ArrayLike): _description_
+        img (np.typing.ArrayLike): The image.
+        kernel (np.typing.ArrayLike): The kernel. Must be odd-sized (3x3, 5x5, 7x7, etc). I also only tested this function with square kernels.
 
     Returns:
-        _type_: _description_
+        np.typing.ArrayLike: The convolved image.
     """
+
     originalImgHeight, originalImgWidth = img.shape
     kernelHeight, kernelWidth           = kernel.shape
 
@@ -26,47 +34,23 @@ def convolve2d(img: np.typing.ArrayLike, kernel: np.typing.ArrayLike):
     padding = kernelWidth // 2
 
     # Pad the image with padding on all sides.
-    img = np.pad(img, (padding,padding))
+    img = np.pad(img, ((padding, padding), (padding, padding)))
 
-    paddedImgHeight, paddedImgWidth = img.shape
+    # Creates a sliding window view into the array using the kernel shape.
+    patches = np.lib.stride_tricks.sliding_window_view(img, kernel.shape)
 
-    # The positions of the pixels for the each convolution. Starts at the top left corner pixel
-    # and increments by 1 at every next convolution.
-    pixelsFirstConvolve = np.asarray([np.arange(paddedImgWidth * rowId, paddedImgWidth * rowId + kernelWidth, dtype=np.uint32) for rowId in range(0, kernelWidth)])
+    # Reshape the arrays so they match dimensionality and shape.
+    patches = patches.reshape(-1, kernelHeight * kernelWidth)
+    kernel  = kernel.flatten()
+
+    # Some kernels (like Sobel) add up to zero when summing all the elements,
+    # so doing np.sum(kernel) straight away could lead to a division by zero error.
+    kernelSum = np.sum(kernel)
+    kernelSum = kernelSum if kernelSum != 0 else 1
+
+    # Perform the convolution operation.
+    img = np.dot(patches, kernel) / kernelSum
     
-    # Flatten the convolve positions, the padded img and the kernel
-    pixelsFirstConvolve   = pixelsFirstConvolve.flatten()
-    img                   = img.flatten()
-    kernel                = kernel.flatten()
-
-    # The amount of times we move the pixelsFirstConvolve matrix to the right is
-    # the number of pixels in the flattened image minus the position that the last pixel in pixelsFirstConvolve points to.
-    numIterations = len(img) - pixelsFirstConvolve[-1]
-
-    # To make our code vectorized, instead of iteratively adding 1 to pixelsFirstConvolve in a for loop
-    # we can precalculate a huge array with every number from 0 to numIterations and then add each of them to
-    # pixelsFirstConvolve :)
-    # This way, we'll have a huge array with every possible value of pixelsFirstConvolve. After doing this,
-    # the code is easily vectorized.
-    increments = np.arange(numIterations, dtype=np.uint32).reshape(-1, 1)
-
-    # Some of the calculated increments result in the kernel centering on padded regions
-    # (i.e., positions that don’t correspond to the original image). Here we compute the indices
-    # of these invalid increments and remove them.
-    fakeIncrements = np.stack([np.arange((idx * paddedImgWidth - padding * 2), idx * paddedImgWidth, dtype=np.uint32) for idx in range(1, originalImgHeight)]).flatten()
+    img = img.reshape(originalImgHeight, originalImgWidth).astype(np.uint8)
     
-    # We delete the fake increments from increments
-    increments = np.delete(increments, fakeIncrements).reshape(-1, 1)
-
-    # And now the valid pixels are pixels in our huge array of valid positions. The valid positions are the pixelsFirstConvolve 
-    # summed with every valid increment.
-    validPixels   = img[pixelsFirstConvolve + increments]
-
-    # Now we can finally do the convolution. Just do a dot product and then divide by the kernel size.
-    img = np.dot(validPixels, kernel) / np.sum(kernel)
-
-    # Reshape the convolved image into the original shape
-    img = img.astype(np.uint8).reshape((originalImgHeight, originalImgWidth))
-
     return img
-    
