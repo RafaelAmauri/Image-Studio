@@ -24,6 +24,7 @@ def main(args):
         # Add a fake 'channel' dimension. This makes it easier to make grayscale images interact with the rest of the code.
         img = np.expand_dims(img, axis=2)
 
+
     # Creates a uniformily spaced color distribution. It's a uniform division from 0 to 255, with args.quantize different colors.
     availableColors = np.linspace(0, 255, args.quantize, dtype=np.uint8)
 
@@ -41,6 +42,7 @@ def main(args):
         if args.dithering is None:
             img = quantize.quantize(img, availableColors)
 
+    
     # Change the color palette acording to a user-specified hue
     if args.hue is not None:
         # This is kinda crazy, but we have to use separate functions depending if the image is Grayscale or if it is RGB.
@@ -67,6 +69,7 @@ def main(args):
 
         img  = colormodel.hsv2rgb(hsvImg)
 
+
     if args.convolution is not None:
         kernelMap = {
                         "boxblur3x3": kernels.boxBlur3x3,
@@ -78,9 +81,11 @@ def main(args):
         kernel = kernelMap[args.convolution]
         img    = np.stack([convolve2d.convolve2d(img[..., channel], kernel) for channel in range(img.shape[-1])], axis=2)
 
+
     if args.grayscale and img.shape[2] == 1:
         # Remove the fake channel dimension
         img = img.squeeze(axis=2)
+
 
     # Save the image
     img = PIL.Image.fromarray(img)
