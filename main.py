@@ -55,7 +55,7 @@ def main(args):
         # This is what ends up giving us a very large number of different Hues, and the reason why
         # the colors available in the RGB image are the unique values in hsvImg[..., 0] instead of availableColors :)
         if args.grayscale:
-            # Since we just have an rgb2hsv function and not a grayscale2hsvfunction, we have to repeat the channel dimension 3 times
+            # Since we just have an rgb2hsv function and not a grayscale2hsv function, we have to repeat the channel dimension 3 times
             # to make the grayscale image work as an RGB image.
             img      = np.repeat(img, repeats=3, axis=2)
             hsvImg   = colormodel.rgb2hsv(img)
