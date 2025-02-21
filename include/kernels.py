@@ -31,3 +31,18 @@ gaussianBlur5x5 = np.asarray(
                                 [4, 16, 25, 16, 4],
                                 [1,  4,  7,  4, 1]
                             ])
+
+sobelHorizontal3x3 = np.asarray(
+                            [
+                                [ 1,  2,  1],
+                                [ 0,  0,  0],
+                                [-1, -2, -1]
+                            ])
+
+sobelVertical3x3 = np.asarray(
+                            [
+                                [1, 0, -1],
+                                [2, 0, -2],
+                                [1, 0, -1]
+                            ]
+)

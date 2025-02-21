@@ -1,13 +1,13 @@
 import numpy as np
 import PIL.Image
 
+import include.edge_detection as edge_detection
 import include.colormapping as colormapping
-import include.convolve2d as convolve2d
 import include.colormodel as colormodel
 import include.quantize as quantize
-import include.kernels as kernels
 import include.dither as dither
 import include.parser as parser
+import include.blur as blur
 
 
 def main(args):
@@ -20,9 +20,6 @@ def main(args):
     # This simplifies the integration with the rest of the code.
     if args.grayscale:
         img = colormodel.rgb2grayscale(img)
-
-        # Add a fake 'channel' dimension. This makes it easier to make grayscale images interact with the rest of the code.
-        img = np.expand_dims(img, axis=2)
 
 
     # Creates a uniformily spaced color distribution. It's a uniform division from 0 to 255, with args.quantize different colors.
@@ -70,19 +67,18 @@ def main(args):
         img  = colormodel.hsv2rgb(hsvImg)
 
 
-    if args.convolution is not None:
-        kernelMap = {
-                        "boxblur3x3": kernels.boxBlur3x3,
-                        "boxblur5x5": kernels.boxBlur5x5,
-                        "gaussian3x3": kernels.gaussianBlur3x3,
-                        "gaussian5x5": kernels.gaussianBlur5x5
-        }
-
-        kernel = kernelMap[args.convolution]
-        img    = np.stack([convolve2d.convolve2d(img[..., channel], kernel) for channel in range(img.shape[-1])], axis=2)
+    if args.blur is not None:
+        # Perform image blur
+        img = blur.blur(img, args.blur)
 
 
-    if args.grayscale and img.shape[2] == 1:
+    if args.edge_detection is not None:
+        # Perform sobel edge detection
+        if args.edge_detection == "sobel":
+            img = edge_detection.sobel(img)
+
+
+    if img.shape[-1] == 1:
         # Remove the fake channel dimension
         img = img.squeeze(axis=2)
 

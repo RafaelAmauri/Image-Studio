@@ -28,6 +28,9 @@ def rgb2grayscale(img: np.typing.ArrayLike) -> np.typing.ArrayLike:
     # This is pretty straightforward, its just a weighted sum.
     img     = img * weights
     img     = np.sum(img, axis=2).astype(np.uint8)
+    
+    # Add a fake 'channel' dimension. This makes it easier to make grayscale images interact with the rest of the code.
+    img = np.expand_dims(img, axis=2)
 
     return img
 
