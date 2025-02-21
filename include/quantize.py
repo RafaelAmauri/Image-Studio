@@ -1,8 +1,4 @@
 import numpy as np
-import time
-
-import include.dither as dither
-
 
 def nearestColor(pixelColor: int, availableColors: np.typing.ArrayLike) -> int:
     """
