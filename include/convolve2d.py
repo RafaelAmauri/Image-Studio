@@ -49,8 +49,8 @@ def convolve2d(img: np.typing.ArrayLike, kernel: np.typing.ArrayLike) -> np.typi
     kernelSum = kernelSum if kernelSum != 0 else 1
 
     # Perform the convolution operation.
-    img = np.dot(patches, kernel) / kernelSum
+    img = (np.dot(patches, kernel) / kernelSum).astype(np.float32)
     
-    img = img.reshape(originalImgHeight, originalImgWidth).astype(np.uint8)
+    img = img.reshape(originalImgHeight, originalImgWidth)
     
     return img
