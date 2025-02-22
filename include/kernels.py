@@ -46,3 +46,18 @@ sobelVertical3x3 = np.asarray(
                                 [1, 0, -1]
                             ]
 )
+
+prewittHorizontal3x3 = np.asarray(
+                            [
+                                [ 1,  1,  1],
+                                [ 0,  0,  0],
+                                [-1, -1, -1]
+                            ])
+
+
+prewittVertical3x3 = np.asarray(
+                            [
+                                [ 1, 0, -1],
+                                [ 1, 0, -1],
+                                [ 1, 0, -1]
+                            ])

@@ -28,7 +28,7 @@ def make_parser():
     parser.add_argument('--blur', '-b', type=str, choices=["boxblur3x3", "boxblur5x5", "gaussian3x3", "gaussian5x5"], default=None,
                         help="Apply a blur filter in the image. Choose from the available implemented blur kernels.")
 
-    parser.add_argument('--edge-detection', '-e', type=str, choices=["sobel"], default=None, 
+    parser.add_argument('--edge-detection', '-e', type=str, choices=["sobel", "prewitt"], default=None, 
                         help="Detects edges in the image using one of the available algorithms.")
 
     return parser

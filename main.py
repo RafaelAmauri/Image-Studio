@@ -76,6 +76,9 @@ def main(args):
         # Perform sobel edge detection
         if args.edge_detection == "sobel":
             img = edge_detection.sobel(img)
+        # Perform prewitt edge detection
+        if args.edge_detection == "prewitt":
+            img = edge_detection.prewitt(img)
 
 
     if img.shape[-1] == 1:
