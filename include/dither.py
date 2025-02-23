@@ -117,13 +117,13 @@ def orderedDithering(img: np.typing.ArrayLike, filterOption: int, availableColor
     img = img.astype(np.float32)
     img = img / 255
 
-    # The precalculated bayer maps. They can theoretically be calculated on-the-fly, but it is much easier to just declare them like this.
-    bayer2x2 = np.array([
+    # The precalculated threshold maps. These can theoretically be calculated on-the-fly, but it is much easier to just declare them like this.
+    threshold2x2 = np.array([
                     [0.00, 0.50],
                     [0.75, 0.25]
                 ])
     
-    bayer4x4 =  np.array([
+    threshold4x4 =  np.array([
                     [0.0000, 0.5000, 0.1250, 0.6250],
                     [0.7500, 0.2500, 0.8750, 0.3750],
                     [0.1875, 0.6875, 0.0625, 0.5625],
@@ -131,7 +131,7 @@ def orderedDithering(img: np.typing.ArrayLike, filterOption: int, availableColor
                 ])
 
 
-    bayer8x8 =  np.array([
+    threshold8x8 =  np.array([
                     [0.000000, 0.500000, 0.125000, 0.625000, 0.031250, 0.531250, 0.156250, 0.656250],
                     [0.750000, 0.250000, 0.875000, 0.375000, 0.781250, 0.281250, 0.906250, 0.406250],
                     [0.187500, 0.687500, 0.062500, 0.562500, 0.218750, 0.718750, 0.093750, 0.593750],
@@ -143,24 +143,24 @@ def orderedDithering(img: np.typing.ArrayLike, filterOption: int, availableColor
                 ])
 
     # Get the chosen bayer kernel
-    precalculatedBayer = [bayer2x2, bayer4x4, bayer8x8][filterOption]
+    thresholdMap = [threshold2x2, threshold4x4, threshold8x8][filterOption]
 
     # To vectorize with numpy, we repeat the bayer kernel in a tile pattern so it fully covers the image. This way, we can fully take advantage of vectorization to
     # speed up the code.
-    precalculatedBayer = np.tile(precalculatedBayer, (img.shape[0] // len(precalculatedBayer) + 1, img.shape[1] // len(precalculatedBayer) + 1) )
+    thresholdMap = np.tile(thresholdMap, (img.shape[0] // len(thresholdMap) + 1, img.shape[1] // len(thresholdMap) + 1) )
     
     # Sometimes the tiling can make the bayer map larger than the image. To fix that, we simply "crop" the bayer map to the exact dimensions of the image.
-    precalculatedBayer = precalculatedBayer[ : img.shape[0], : img.shape[1]]
+    thresholdMap = thresholdMap[ : img.shape[0], : img.shape[1]]
 
     # And now we flatten both the image and the bayer map so they are both in the (H * W, C) format.
     img = img.reshape(-1, img.shape[-1])
-    precalculatedBayer = precalculatedBayer.flatten()
+    thresholdMap = thresholdMap.flatten()
 
 
-    def ditherPixel(originalGrayscale, availableColors, precalculatedBayer):
+    def ditherPixel(originalGrayscale, availableColors, thresholdMap):
         # The index of the new value for each pixel is their original value + the corresponding bayer matrix value in the X, Y coordinate / len(availableColors).
         # Since precalculatedBayer is the same dimension as the image channel, numpy vectorizes this section for us and it runs really fast!
-        adjustedGrayscale = originalGrayscale + precalculatedBayer / len(availableColors)
+        adjustedGrayscale = originalGrayscale + thresholdMap / len(availableColors)
 
         # Now we get the index of the color for the pixel's new grayscale value
         quantizedColorIdx = np.floor(adjustedGrayscale * len(availableColors))
@@ -170,9 +170,9 @@ def orderedDithering(img: np.typing.ArrayLike, filterOption: int, availableColor
         return availableColors[quantizedColorIdx]
     
 
-    def ditherPixel2Colors(originalGrayscale, availableColors, precalculatedBayer):
+    def ditherPixel2Colors(originalGrayscale, availableColors, thresholdMap):
         adjustedGrayscale = np.where(
-                                originalGrayscale > precalculatedBayer,
+                                originalGrayscale > thresholdMap,
                                 availableColors[1],
                                 availableColors[0]
         )
@@ -180,9 +180,9 @@ def orderedDithering(img: np.typing.ArrayLike, filterOption: int, availableColor
         return adjustedGrayscale
 
     if len(availableColors) > 2:
-        img = np.stack([ditherPixel(img[:, channel], availableColors, precalculatedBayer) for channel in range(img.shape[-1])], axis=1)
+        img = np.stack([ditherPixel(img[:, channel]       , availableColors, thresholdMap) for channel in range(img.shape[-1])], axis=1)
     else:
-        img = np.stack([ditherPixel2Colors(img[:, channel], availableColors, precalculatedBayer) for channel in range(img.shape[-1])], axis=1)
+        img = np.stack([ditherPixel2Colors(img[:, channel], availableColors, thresholdMap) for channel in range(img.shape[-1])], axis=1)
 
     
     # Now we simply return the image to its original shape.

@@ -75,10 +75,10 @@ def main(args):
     if args.edge_detection is not None:
         # Perform sobel edge detection
         if args.edge_detection == "sobel":
-            img = edge_detection.sobel(img)
+            img = edge_detection.sobel(img, args.edge_color)
         # Perform prewitt edge detection
         if args.edge_detection == "prewitt":
-            img = edge_detection.prewitt(img)
+            img = edge_detection.prewitt(img, args.edge_color)
 
 
     if img.shape[-1] == 1:
