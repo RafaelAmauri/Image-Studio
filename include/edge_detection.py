@@ -38,15 +38,15 @@ def sobel(img: np.typing.ArrayLike, edgeColor: int) -> np.typing.ArrayLike:
     img = img.astype(np.float32)
 
     # Calculate edges
-    gradientHorizontalEdges = convolve2d.convolve2d(img, kernels.sobelHorizontal3x3, "edge")
-    gradientVerticalEdges   = convolve2d.convolve2d(img, kernels.sobelVertical3x3,   "edge")
+    horizontalGradients = convolve2d.convolve2d(img, kernels.sobelHorizontal3x3, "edge")
+    verticalGradients   = convolve2d.convolve2d(img, kernels.sobelVertical3x3,   "edge")
 
     # Combine horizontal and vertical edges
-    gradient = np.sqrt((gradientHorizontalEdges**2) + (gradientVerticalEdges**2))
+    gradient = np.sqrt((horizontalGradients**2) + (verticalGradients**2))
 
     # Treat the horizontal and vertical gradients as a right triangle and use the arctangent
     # of both gradients to get the direction for the edges.
-    gradientDirection = np.atan2(gradientHorizontalEdges, gradientVerticalEdges)
+    gradientDirection = np.atan2(horizontalGradients, verticalGradients)
     # Convert from radians to degrees
     gradientDirection = np.rad2deg(gradientDirection) % 360
 
@@ -98,15 +98,15 @@ def prewitt(img: np.typing.ArrayLike, edgeColor: int) -> np.typing.ArrayLike:
     img = img.astype(np.float32)
 
     # Calculate edges
-    gradientHorizontalEdges = convolve2d.convolve2d(img, kernels.prewittHorizontal3x3, "edge")
-    gradientVerticalEdges   = convolve2d.convolve2d(img, kernels.prewittVertical3x3,   "edge")
+    horizontalGradients = convolve2d.convolve2d(img, kernels.prewittHorizontal3x3, "edge")
+    verticalGradients   = convolve2d.convolve2d(img, kernels.prewittVertical3x3,   "edge")
 
     # Combine horizontal and vertical edges
-    gradient = np.sqrt((gradientHorizontalEdges**2) + (gradientVerticalEdges**2))
+    gradient = np.sqrt((horizontalGradients**2) + (verticalGradients**2))
 
     # Treat the horizontal and vertical gradients as a right triangle and use the arctangent
     # of both gradients to get the direction for the edges.
-    gradientDirection = np.atan2(gradientHorizontalEdges, gradientVerticalEdges)
+    gradientDirection = np.atan2(horizontalGradients, verticalGradients)
     # Convert from radians to degrees
     gradientDirection = np.rad2deg(gradientDirection) % 360
 

@@ -34,8 +34,8 @@ def make_parser():
     parser.add_argument('--edge-detection', '-e', type=str, choices=["sobel", "prewitt"], default=None, 
                         help="Detects edges in the image using one of the available algorithms.")
 
-    parser.add_argument('--edge-color', '-ec', type=int, choices=range(-2, 360), default=-2, 
+    parser.add_argument('--edge-color', '-ec', type=int, choices=range(-2, 360), default=-1, 
                         help="Colors the detected edges with a specific color. -2 = All edges are white, -1 = Assigns a Hue value based on \
-                            the direction that the edges points to, any other value = colors all edges with that Hue value.")
+                            the direction that the edges points to, any other value = colors all edges with that Hue value. Default = -1")
 
     return parser
