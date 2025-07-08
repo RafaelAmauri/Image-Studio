@@ -39,8 +39,11 @@ def make_parser():
                             the direction that the edges points to, any other value = colors all edges with that Hue value. Default = -1")
 
     parser.add_argument('--contrast', '-c', type=float, default=-1,
-                        help="By how much to boost the contrast in the image. -c = 2 will take the 2% lowest and 2% highest colors" \
+                        help="By how much to boost the contrast in the image. Must be between 0 and 100. -c = 2 will take the 2% lowest and 2% highest colors" \
                         "and equal them to 0 and 255 respectively and then scale the midtones.")
+
+    parser.add_argument('--brightness', '-br', type=int, default=-256,
+                        help="Boosts the brightness by the specified value. Must be between -255 and 255.")
 
     return parser
 
@@ -51,3 +54,9 @@ def validateParams(args):
     
     if args.hue_range < 0 or args.hue_range > 179:
         raise ValueError("--hue-range must be between 0 and 170")
+    
+    if args.brightness < -256 or args.brightness > 255:
+        raise ValueError("--brightness must be between -255 and 255")
+    
+    if args.contrast < -1 or args.contrast > 100:
+        raise ValueError("--contrast must be between 0 and 100")
