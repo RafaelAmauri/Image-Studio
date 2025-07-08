@@ -22,7 +22,7 @@ def make_parser():
                             Super recommended to also use the -g option, because converting the color palette of an RGB image \
                                 tends to give weird results.")
 
-    parser.add_argument('--hue-range', type=int, default=0, choices=range(0, 180), metavar="[0-179]",
+    parser.add_argument('--hue-range', type=int, default=0,
                        help="By how much the hue in the color palette can vary. Default = 0.")
     
     parser.add_argument('--hue-reversed', action='store_true', default=False,
@@ -34,7 +34,7 @@ def make_parser():
     parser.add_argument('--edge-detection', '-e', type=str, choices=["sobel", "prewitt"], default=None, 
                         help="Detects edges in the image using one of the available algorithms.")
 
-    parser.add_argument('--edge-color', '-ec', type=int, choices=range(-2, 360), default=-1, 
+    parser.add_argument('--edge-color', '-ec', type=int, default=-1, 
                         help="Colors the detected edges with a specific color. -2 = All edges are white, -1 = Assigns a Hue value based on \
                             the direction that the edges points to, any other value = colors all edges with that Hue value. Default = -1")
 
@@ -43,3 +43,11 @@ def make_parser():
                         "and equal them to 0 and 255 respectively and then scale the midtones.")
 
     return parser
+
+
+def validateParams(args):
+    if args.edge_color < -2 or args.edge_color > 360:
+        raise ValueError("--edge-color must be between -2 and 360")
+    
+    if args.hue_range < 0 or args.hue_range > 179:
+        raise ValueError("--hue-range must be between 0 and 170")
