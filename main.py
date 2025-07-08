@@ -1,13 +1,16 @@
 import numpy as np
 import PIL.Image
 
-import include.edge_detection as edge_detection
-import include.colormapping as colormapping
-import include.colormodel as colormodel
-import include.quantize as quantize
-import include.dither as dither
-import include.parser as parser
-import include.blur as blur
+import include.effects.edge_detection as edge_detection
+import include.effects.colormapping as colormapping
+import include.effects.brightness as brightness
+import include.effects.contrast as contrast
+import include.effects.quantize as quantize
+import include.effects.dither as dither
+import include.effects.blur as blur
+
+import include.utils.colormodel as colormodel
+import include.utils.parser as parser
 
 
 def main(args):
@@ -20,10 +23,17 @@ def main(args):
     # This simplifies the integration with the rest of the code.
     if args.grayscale:
         img = colormodel.rgb2grayscale(img)
-
+    
+    
 
     # Creates a uniformily spaced color distribution. It's a uniform division from 0 to 255, with args.quantize different colors.
     availableColors = np.linspace(0, 255, args.quantize, dtype=np.uint8)
+
+    if args.contrast != -1:
+        img = contrast.contrast_boost(img, args.contrast)
+
+    if args.brightness != -256:
+        img = brightness.brightness_boost(img, args.brightness)
 
     # If the user wants to quantize the image. args.quantize contains the number of colors available. If args.quantize is 255 (the default value),
     # then there's no need to apply quantization.
@@ -45,7 +55,7 @@ def main(args):
         # This is kinda crazy, but we have to use separate functions depending if the image is Grayscale or if it is RGB.
         # That's because if the image is in grayscale, then the available colors are... well... the array availableColors.
 
-        # But if the image is RGB, then the available colors are all the unique values in the Hue channel.
+        # But if the image is RGB, then the available colors are all the unique combinations in the R, G and B channel.
         # That's because even though we quantize the image with an arbitrary number of colors, that reduced number of
         # colors can COMBINE INTO DIFFERENT colors because of the 3 channels. For example, if there's only 3 colors for each channel:
         # [0, 127, 255], then there's 3 * 3 * 3 different combinations of colors.
@@ -93,5 +103,6 @@ def main(args):
 
 if __name__ == '__main__':
     args = parser.make_parser().parse_args()
-    
+    parser.validateParams(args)
+
     main(args)
