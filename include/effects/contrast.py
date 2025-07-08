@@ -17,7 +17,7 @@ def contrast_boost(img: np.typing.NDArray, boost: float) -> np.typing.NDArray:
     # For example, if boost = 5%, 2.5% goes to the lowtones and 2.5% to the hightones. This way, the boost can be
     # from 0 to 100. If I didn't divide by two, if boost = 100, then the lowtones and hightones would overlap XD.
     boost = boost / 2
-
+    
     for channel in range(img.shape[-1]):
         lowtones  = np.percentile(img[..., channel], boost)
         hightones = np.percentile(img[..., channel], 100-boost)
@@ -28,11 +28,11 @@ def contrast_boost(img: np.typing.NDArray, boost: float) -> np.typing.NDArray:
         img[..., channel][lowtones_mask]  = 0
         img[..., channel][hightones_mask] = 255
 
-        midtones_mask = ~lowtones_mask & ~hightones_mask
+        midtones_mask = ~(lowtones_mask | hightones_mask)
 
         img[..., channel][midtones_mask] = (img[..., channel][midtones_mask] - lowtones) / (hightones - lowtones) * 255
-        img[..., channel][midtones_mask] = img[..., channel][midtones_mask].clip(0, 255)
         
-    img = img.astype(np.uint8)  
+    
+    img = img.clip(0, 255).astype(np.uint8)
 
     return img
