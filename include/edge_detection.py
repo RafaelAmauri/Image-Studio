@@ -6,7 +6,7 @@ import include.convolve2d as convolve2d
 import include.kernels as kernels
 
 
-def sobel(img: np.typing.ArrayLike, edgeColor: int) -> np.typing.ArrayLike:
+def sobel(img: np.typing.NDArray, edgeColor: int) -> np.typing.NDArray:
     """
     Implements Sobel edge detection https://en.wikipedia.org/wiki/Sobel_operator.
 
@@ -14,7 +14,7 @@ def sobel(img: np.typing.ArrayLike, edgeColor: int) -> np.typing.ArrayLike:
     to grayscale.
 
     Args:
-        img (np.typing.ArrayLike): The image.
+        img (np.typing.NDArray): The image.
 
         edgeColor (int) : The HSV color to use to color the edges. -2 = White edges, -1 = Uses the edge direction
         in an HSV color wheel (https://i.sstatic.net/UyDZ8.jpg) to automatically get the edge color. 
@@ -22,7 +22,7 @@ def sobel(img: np.typing.ArrayLike, edgeColor: int) -> np.typing.ArrayLike:
         edges with that color.
 
     Returns:
-        np.typing.ArrayLike: The image with the detected edges in RGB format.
+        np.typing.NDArray: The image with the detected edges in RGB format.
     """
     # If it's not a grayscale image
     if img.shape[2] != 1:
@@ -65,7 +65,7 @@ def sobel(img: np.typing.ArrayLike, edgeColor: int) -> np.typing.ArrayLike:
     return img
 
 
-def prewitt(img: np.typing.ArrayLike, edgeColor: int) -> np.typing.ArrayLike:
+def prewitt(img: np.typing.NDArray, edgeColor: int) -> np.typing.NDArray:
     """
     Implements Prewitt edge detection https://en.wikipedia.org/wiki/Prewitt_operator.
 
@@ -73,7 +73,7 @@ def prewitt(img: np.typing.ArrayLike, edgeColor: int) -> np.typing.ArrayLike:
     to grayscale.
 
     Args:
-        img (np.typing.ArrayLike): The image.
+        img (np.typing.NDArray): The image.
 
         edgeColor (int) : The HSV color to use to color the edges. -2 = White edges, -1 = Uses the edge direction
         in an HSV color wheel (https://i.sstatic.net/UyDZ8.jpg) to automatically get the edge color. 
@@ -81,7 +81,7 @@ def prewitt(img: np.typing.ArrayLike, edgeColor: int) -> np.typing.ArrayLike:
         edges with that color.
 
     Returns:
-        np.typing.ArrayLike: The image with the detected edges in RGB format.
+        np.typing.NDArray: The image with the detected edges in RGB format.
     """
 
     # If it's not a grayscale image

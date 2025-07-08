@@ -12,10 +12,10 @@ blurKernels = {
             }
 
 
-def blur(img: np.typing.ArrayLike, kernel: np.typing.ArrayLike) -> np.typing.ArrayLike:
-    kernel = blurKernels[kernel]
+def blur(img: np.typing.NDArray, kernelName: str) -> np.typing.NDArray:
+    kernel = blurKernels[kernelName]
 
-    img = np.stack([convolve2d.convolve2d(img[..., channel], kernel) for channel in range(img.shape[-1])], axis=2)
-    img = img.astype(np.uint8)
+    img    = np.stack([convolve2d.convolve2d(img[..., channel], kernel) for channel in range(img.shape[-1])], axis=2)
+    img    = img.astype(np.uint8)
 
     return img

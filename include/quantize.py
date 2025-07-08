@@ -1,12 +1,12 @@
 import numpy as np
 
-def nearestColor(pixelColor: int, availableColors: np.typing.ArrayLike) -> int:
+def nearestColor(pixelColor: int, availableColors: np.typing.NDArray) -> int:
     """
     Given a list of available colors, picks the one closest to pixelColor
 
     Args:
         pixelColor (int): The original color
-        availableColors (np.typing.ArrayLike): The list of available colors
+        availableColors (np.typing.NDArray): The list of available colors
 
     Returns:
         int: The color in availableColors closest to pixelColor
@@ -28,15 +28,15 @@ def nearestColor(pixelColor: int, availableColors: np.typing.ArrayLike) -> int:
     return quantizedColor
 
 
-def quantize(img: np.typing.ArrayLike, availableColors: np.typing.ArrayLike) -> np.typing.ArrayLike:
+def quantize(img: np.typing.NDArray, availableColors: np.typing.NDArray) -> np.typing.NDArray:
     """Quantizes the image into an arbitrary number of colors.
 
     Args:
-        img (np.typing.ArrayLike)             : The image array. Must be in the format (H, W, C)
-        availableColors (np.typing.ArrayLike) : A list containing the colors available. Should start at 0 and 
+        img (np.typing.NDArray)             : The image array. Must be in the format (H, W, C)
+        availableColors (np.typing.NDArray) : A list containing the colors available. Should start at 0 and 
                                                 the last element should be 255.
     Returns:
-        np.typing.ArrayLike (np.uint8): The quantized image
+        np.typing.NDArray (np.uint8): The quantized image
     """
     originalImgShape = img.shape
     img = img.copy()

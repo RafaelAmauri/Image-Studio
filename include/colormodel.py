@@ -6,7 +6,7 @@ a color model, check https://en.wikipedia.org/wiki/Color_model
 import numpy as np
 
 
-def rgb2grayscale(img: np.typing.ArrayLike) -> np.typing.ArrayLike:
+def rgb2grayscale(img: np.typing.NDArray) -> np.typing.NDArray:
     """Converts an image from RGB to Grayscale. 
     I am following this formula https://scikit-image.org/docs/stable/auto_examples/color_exposure/plot_rgb_to_gray.html
     which states that the conversion weights for each channel should be 
@@ -16,10 +16,10 @@ def rgb2grayscale(img: np.typing.ArrayLike) -> np.typing.ArrayLike:
     because of how human vision works.
 
     Args:
-        img (np.typing.ArrayLike): The RGB image
+        img (np.typing.NDArray): The RGB image
 
     Returns:
-        np.typing.ArrayLike: Tge grayscale image
+        np.typing.NDArray: Tge grayscale image
     """
     img     = img.astype(np.float64)
 
@@ -36,17 +36,17 @@ def rgb2grayscale(img: np.typing.ArrayLike) -> np.typing.ArrayLike:
 
 
 
-def rgb2hsv(img: np.typing.ArrayLike) -> np.typing.ArrayLike:
+def rgb2hsv(img: np.typing.NDArray) -> np.typing.NDArray:
     """
     Converts an image from the RGB color model into the HSV color model (https://en.wikipedia.org/wiki/HSL_and_HSV#From_RGB)!
 
     WARNING: Lots of comments! I tried to make it as easy to understand as possible!
 
     Args:
-        img (np.typing.ArrayLike): The RGB image.
+        img (np.typing.NDArray): The RGB image.
 
     Returns:
-        np.typing.ArrayLike: The HSV image.
+        np.typing.NDArray: The HSV image.
     """
     # Convert from np.uint8 to np.float32
     img = img.astype(np.float32)
@@ -167,16 +167,16 @@ def rgb2hsv(img: np.typing.ArrayLike) -> np.typing.ArrayLike:
 
 
 
-def hsv2rgb(hsvImg: np.typing.ArrayLike) -> np.typing.ArrayLike:
+def hsv2rgb(hsvImg: np.typing.NDArray) -> np.typing.NDArray:
     """
     The formula for conversion can be found in https://en.wikipedia.org/wiki/HSL_and_HSV#HSV_to_RGB
 
     
     Args:
-        hsvImg (np.typing.ArrayLike): The HSV image.
+        hsvImg (np.typing.NDArray): The HSV image.
 
     Returns:
-        np.typing.ArrayLike: The RGB Image
+        np.typing.NDArray: The RGB Image
     """
     # Save the original image dimensions and reshape the array
     originalShape = hsvImg.shape

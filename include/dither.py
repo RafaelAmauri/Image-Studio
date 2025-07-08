@@ -3,7 +3,7 @@ import numpy as np
 import include.quantize as quantize
 
 
-def distributeResiduals(quantizationResidual: int) -> np.typing.ArrayLike:
+def distributeResiduals(quantizationResidual: int) -> np.typing.NDArray:
     """
     Returns a list for how the quantization residuals should be distributed.
 
@@ -11,7 +11,7 @@ def distributeResiduals(quantizationResidual: int) -> np.typing.ArrayLike:
         quantizationResidual (int): The residual of the quantization operation for a given pixel
 
     Returns:
-        np.typing.ArrayLike (np.float32): The quantizationResidual after being distributed according to the Floyd-Steinberg method
+        np.typing.NDArray (np.float32): The quantizationResidual after being distributed according to the Floyd-Steinberg method
     """
 
     floydSteinbergWeights         = np.array([7/16, 3/16, 5/16, 1/16], dtype=np.float32)
@@ -21,7 +21,7 @@ def distributeResiduals(quantizationResidual: int) -> np.typing.ArrayLike:
     return weightedQuantizationResiduals
 
 
-def floydSteinberg(img: np.typing.ArrayLike, availableColors: np.typing.ArrayLike) -> np.typing.ArrayLike:
+def floydSteinberg(img: np.typing.NDArray, availableColors: np.typing.NDArray) -> np.typing.NDArray:
     """
     WARNING: NOT VECTORIZED!!
 
@@ -49,12 +49,12 @@ def floydSteinberg(img: np.typing.ArrayLike, availableColors: np.typing.ArrayLik
 
 
     Args:
-        img (np.typing.ArrayLike)             : The image array. Must be in the format (H, W, C)
-        availableColors (np.typing.ArrayLike) : A list containing the colors available. Should start at 0 and 
+        img (np.typing.NDArray)             : The image array. Must be in the format (H, W, C)
+        availableColors (np.typing.NDArray) : A list containing the colors available. Should start at 0 and 
                                                 the last element should be 255.
 
     Returns:
-        np.typing.ArrayLike (np.uint8): The quantized image
+        np.typing.NDArray (np.uint8): The quantized image
     """
     # Sometimes, the dithering operation could cause an overflow if there's a pixel that's 
     # already at 255. Since non-zero dithering resudials will get added to it, it would cause
@@ -99,14 +99,14 @@ def floydSteinberg(img: np.typing.ArrayLike, availableColors: np.typing.ArrayLik
     return img
 
 
-def orderedDithering(img: np.typing.ArrayLike, filterOption: int, availableColors: np.typing.ArrayLike):
+def orderedDithering(img: np.typing.NDArray, filterOption: int, availableColors: np.typing.NDArray):
     """
     Applies Ordered Dithering (https://en.wikipedia.org/wiki/Ordered_dithering) to the image. 
 
     Args:
         img (np.uint8)                       : The image
         filterOption (int)                   : The bayer kernel to use. 0 = 4x4 kernel, 1 = 8x8 kernel, 2 = 64x64 kernel.
-        availableColors (np.typing.ArrayLike): The array of available colors.
+        availableColors (np.typing.NDArray): The array of available colors.
 
     Returns:
         np.uint8: The dithered image
