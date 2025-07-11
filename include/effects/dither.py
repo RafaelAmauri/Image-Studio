@@ -1,6 +1,7 @@
 import numpy as np
 
 import include.effects.quantize as quantize
+import include.utils.convolve2d as convolve2d
 
 
 def distributeResiduals(quantizationResidual: np.typing.NDArray) -> np.typing.NDArray:
@@ -25,34 +26,25 @@ def distributeResiduals(quantizationResidual: np.typing.NDArray) -> np.typing.ND
 
 def floydSteinberg(img: np.typing.NDArray, availableColors: np.typing.NDArray) -> np.typing.NDArray:
     """
-    WARNING: Floyd-Steinberg unfortunaly cannot run in parallel because calculating the quantization error depends 
+    WARNING: Floyd-Steinberg unfortunately cannot easily run in parallel because calculating the quantization error depends 
     on the result of the previous iteration :(
 
     Fortunately, the channels are fully independent, so I can run floyd-steinberg for each channel in parallel and then
-    stack them back together. This was essentially my strategy to run this in parallel.
-
+    stack them back together. This was essentially my strategy to run this in parallel.  Because of the way the error diffusion works, 
+    this makes the code highly sequential full of local dependencies. For more details, this great paper by Quentin Guilloteau explains 
+    the problem well https://hal.science/hal-03594790/document.
 
     Uses a Floyd-Steinberg filter (https://en.wikipedia.org/wiki/Floyd%E2%80%93Steinberg_dithering) to calculate 
     a dithering effect.
 
-    In practice, it distributes the quantization residual in the following way:
-
-
-    [0     S     7/16]
-
-
-    [3/16  5/16  1/16]
-
-    
-    S is the current pixel that gave us the quantization residual. The pixel to the right of it gets 7/16 of the residual,
-    so the pixel to the right is now:
-
-
-    pixelToTheRight = pixelToTheRight + quantizationResidual*7/16.
-
-    
-    The same logic is applied to the other pixels.
-
+    The dithering works as follows:
+        1. We assign a new value to the current pixel
+        
+        2. We compute the error of this pixel as the difference between the new value and the old value
+        
+        3. [Error Diffusion] We add a fraction of this error to the neighbouring pixels.
+            For example, if the error for the current pixel is 42, we will add 7/16 x 42 to the value of the pixels on its
+            right
 
     Args:
         img (np.typing.NDArray)             : The image array. Must be in the format (H, W, C)
@@ -62,11 +54,7 @@ def floydSteinberg(img: np.typing.NDArray, availableColors: np.typing.NDArray) -
     Returns:
         np.typing.NDArray (np.uint8): The quantized image
     """
-    # Sometimes, the dithering operation could cause an overflow if there's a pixel that's 
-    # already at 255. Since non-zero dithering resudials will get added to it, it would cause
-    # a bit overflow. To be safe, we use np.float32 for just this one operation. Since the
-    # dithering residuals are often floating points too, this was something we already had to anyway.
-    # At the end of the function, we convert the values back to np.uint8.
+    # Create a safety copy and convert to float32 because the diffusion errors are often non-integer values.
     img = np.copy(img).astype(np.float32)
     
     for row in range(img.shape[0]):
@@ -74,7 +62,7 @@ def floydSteinberg(img: np.typing.NDArray, availableColors: np.typing.NDArray) -
             oldPixelColor = img[row][column].copy()
             
             # Quantize the pixel
-            newPixelColor = quantize.nearestColor(oldPixelColor, availableColors)
+            newPixelColor    = quantize.nearestColor(oldPixelColor, availableColors)
             img[row][column] = newPixelColor
             
             # Calculate the residuals (difference between original color and new color)
@@ -97,7 +85,7 @@ def floydSteinberg(img: np.typing.NDArray, availableColors: np.typing.NDArray) -
                 if column + 1 < img.shape[1]:
                     # Update pixel to the right
                     img[row+1][column+1] = np.clip(img[row+1][column+1] + residuals[..., 3], 0, 255)
-                
+    
     img = img.astype(np.uint8)
 
     return img
