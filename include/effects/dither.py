@@ -26,14 +26,15 @@ def distributeResiduals(quantizationResidual: np.typing.NDArray) -> np.typing.ND
 
 def floydSteinberg(img: np.typing.NDArray, availableColors: np.typing.NDArray) -> np.typing.NDArray:
     """
-    WARNING: Floyd-Steinberg unfortunately cannot easily run in parallel because calculating the quantization error depends 
-    on the result of the previous iteration :(
+    WARNING: Floyd-Steinberg Dithering unfortunately cannot be easily run in parallel because 
+    calculating the quantization error has local dependencies with neighboring pixels and what their dithered result is :(
 
-    Fortunately, the channels are fully independent, so I can run floyd-steinberg for each channel in parallel and then
-    stack them back together. This was essentially my strategy to run this in parallel.  Because of the way the error diffusion works, 
-    this makes the code highly sequential full of local dependencies. For more details, this great paper by Quentin Guilloteau explains 
-    the problem well https://hal.science/hal-03594790/document.
+    Fortunately, the channels are fully independent, so I can run Floyd-Steinberg for each channel in parallel and then
+    stack them back together. This was essentially my strategy to run this in parallel. 
+    
+    For more details, this great paper by Quentin Guilloteau explains the problem quite well https://hal.science/hal-03594790/document.
 
+    
     Uses a Floyd-Steinberg filter (https://en.wikipedia.org/wiki/Floyd%E2%80%93Steinberg_dithering) to calculate 
     a dithering effect.
 
