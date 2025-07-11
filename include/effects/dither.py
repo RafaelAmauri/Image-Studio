@@ -1,7 +1,6 @@
 import numpy as np
 
 import include.effects.quantize as quantize
-import include.utils.convolve2d as convolve2d
 
 
 def distributeResiduals(quantizationResidual: np.typing.NDArray) -> np.typing.NDArray:

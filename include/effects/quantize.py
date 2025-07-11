@@ -16,16 +16,12 @@ def nearestColor(pixelColor: np.typing.NDArray, availableColors: np.typing.NDArr
     
     candidate1 = availableColors[candidate1Idx]
     candidate2 = availableColors[candidate2Idx]
-    pixelColor = pixelColor
     
-    # The new pixel color is whichever of the two candidate colors are the closest to it
-    quantizedColor = np.where(
-                        (pixelColor - candidate1) < (candidate2 - pixelColor),
-                        candidate1,
-                        candidate2
-    )
-    
-    return quantizedColor
+    return np.where(
+                    (pixelColor - candidate1) < (candidate2 - pixelColor),
+                    candidate1,
+                    candidate2
+                )
 
 
 def quantize(img: np.typing.NDArray, availableColors: np.typing.NDArray) -> np.typing.NDArray:
@@ -41,7 +37,7 @@ def quantize(img: np.typing.NDArray, availableColors: np.typing.NDArray) -> np.t
     originalImgShape = img.shape
     img = img.copy()
 
-    # Reshape img into (H * W, 3)
+    # Reshape img into 1D. Shape should be (H * W, nChannels)
     img = img.reshape(-1, img.shape[-1])
     
     # For each channel, pass it as an argument to nearestColor. Since nearestColor is fully vectorized, it
@@ -49,8 +45,4 @@ def quantize(img: np.typing.NDArray, availableColors: np.typing.NDArray) -> np.t
     img  = np.stack([nearestColor(img[:, channel], availableColors) for channel in range(img.shape[-1])], axis=1)
     
     # Reshape the image back into the original shape
-    img = img.reshape(originalImgShape)
-    
-
-    img = img.astype(np.uint8)
-    return img
+    return img.reshape(originalImgShape).astype(np.uint8)
