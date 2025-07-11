@@ -1,6 +1,6 @@
 import numpy as np
 
-def nearestColor(pixelColor: int, availableColors: np.typing.NDArray) -> int:
+def nearestColor(pixelColor: np.typing.NDArray, availableColors: np.typing.NDArray) -> np.typing.NDArray:
     """
     Given a list of available colors, picks the one closest to pixelColor
 
@@ -13,11 +13,11 @@ def nearestColor(pixelColor: int, availableColors: np.typing.NDArray) -> int:
     """
     candidate1Idx = np.searchsorted(availableColors, pixelColor, "right") - 1
     candidate2Idx = np.clip(candidate1Idx + 1, 0, len(availableColors)-1)
-
+    
     candidate1 = availableColors[candidate1Idx]
     candidate2 = availableColors[candidate2Idx]
     pixelColor = pixelColor
-
+    
     # The new pixel color is whichever of the two candidate colors are the closest to it
     quantizedColor = np.where(
                         (pixelColor - candidate1) < (candidate2 - pixelColor),

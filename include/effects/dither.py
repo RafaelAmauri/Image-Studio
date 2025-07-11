@@ -3,7 +3,7 @@ import numpy as np
 import include.effects.quantize as quantize
 
 
-def distributeResiduals(quantizationResidual: int) -> np.typing.NDArray:
+def distributeResiduals(quantizationResidual: np.typing.NDArray) -> np.typing.NDArray:
     """
     Returns a list for how the quantization residuals should be distributed.
 
@@ -15,7 +15,9 @@ def distributeResiduals(quantizationResidual: int) -> np.typing.NDArray:
     """
 
     floydSteinbergWeights         = np.array([7/16, 3/16, 5/16, 1/16], dtype=np.float32)
-    weightedQuantizationResiduals = quantizationResidual * floydSteinbergWeights
+    
+    # Create new axis to broadcast. Output should be (nChannels, 4)
+    weightedQuantizationResiduals = quantizationResidual[..., np.newaxis] * floydSteinbergWeights
     
 
     return weightedQuantizationResiduals
@@ -23,9 +25,13 @@ def distributeResiduals(quantizationResidual: int) -> np.typing.NDArray:
 
 def floydSteinberg(img: np.typing.NDArray, availableColors: np.typing.NDArray) -> np.typing.NDArray:
     """
-    WARNING: NOT VECTORIZED!!
+    WARNING: Floyd-Steinberg unfortunaly cannot run in parallel because calculating the quantization error depends 
+    on the result of the previous iteration :(
 
-    
+    Fortunately, the channels are fully independent, so I can run floyd-steinberg for each channel in parallel and then
+    stack them back together. This was essentially my strategy to run this in parallel.
+
+
     Uses a Floyd-Steinberg filter (https://en.wikipedia.org/wiki/Floyd%E2%80%93Steinberg_dithering) to calculate 
     a dithering effect.
 
@@ -65,35 +71,33 @@ def floydSteinberg(img: np.typing.NDArray, availableColors: np.typing.NDArray) -
     
     for row in range(img.shape[0]):
         for column in range(img.shape[1]):
-            for channel in range(img.shape[2]):
-                oldPixelColor = img[row][column][channel]
-
-                # Quantize the pixel
-                newPixelColor = quantize.nearestColor(oldPixelColor, availableColors)
-                img[row][column][channel] = newPixelColor
-                
-                # Calculate the residuals (difference between original color and new color)
-                quantizationResidual = oldPixelColor - newPixelColor
-
-                # Uses the Floyd-Steinberg algorithm to distribute the residuals.
-                residuals = distributeResiduals(quantizationResidual)
-
-                # Distribute the residuals. We clip the values so residuals are always in the [0, 255] range
+            oldPixelColor = img[row][column].copy()
+            
+            # Quantize the pixel
+            newPixelColor = quantize.nearestColor(oldPixelColor, availableColors)
+            img[row][column] = newPixelColor
+            
+            # Calculate the residuals (difference between original color and new color)
+            quantizationResidual = oldPixelColor - newPixelColor
+            
+            # Uses the Floyd-Steinberg algorithm to distribute the residuals.
+            residuals = distributeResiduals(quantizationResidual)
+            
+            # Distribute the residuals. We clip the values so residuals are always in the [0, 255] range
+            if column + 1 < img.shape[1]:
+                # Update pixel to the right
+                img[row][column+1]   = np.clip(img[row][column+1]   + residuals[..., 0], 0, 255)
+            
+            if row + 1 < img.shape[0]:
+                # Update pixel below
+                img[row+1][column]   = np.clip(img[row+1][column]   + residuals[..., 2], 0, 255)
+                if column - 1 >= 0:
+                    # Update pixel below and to the left
+                    img[row+1][column-1] = np.clip(img[row+1][column-1] + residuals[..., 1], 0, 255)
                 if column + 1 < img.shape[1]:
                     # Update pixel to the right
-                    img[row][column+1][channel]   = np.clip(img[row][column+1][channel]   + residuals[0], 0, 255)
+                    img[row+1][column+1] = np.clip(img[row+1][column+1] + residuals[..., 3], 0, 255)
                 
-                if row + 1 < img.shape[0]:
-                    # Update pixel below
-                    img[row+1][column][channel]   = np.clip(img[row+1][column][channel]   + residuals[2], 0, 255)
-                    if column - 1 >= 0:
-                        # Update pixel below and to the left
-                        img[row+1][column-1][channel] = np.clip(img[row+1][column-1][channel] + residuals[1], 0, 255)
-                    if column + 1 < img.shape[1]:
-                        # Update pixel to the right
-                        img[row+1][column+1][channel] = np.clip(img[row+1][column+1][channel] + residuals[3], 0, 255)
-                
-    
     img = img.astype(np.uint8)
 
     return img
