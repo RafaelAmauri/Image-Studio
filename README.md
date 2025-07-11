@@ -1,4 +1,7 @@
 # Image Studio
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/python-3.13-blue.svg)](https://www.python.org/)
+[![Numpy](https://img.shields.io/badge/numpy-2.3.1-blue.svg)](https://www.python.org/)
 
 Welcome to **Image Studio** 👋!
 
@@ -11,7 +14,7 @@ I have also written a [Wiki](https://github.com/RafaelAmauri/Image-Studio/wiki) 
 # Showcase 
 
 
-## Color Palette Conversion 🎨
+## 🎨 Color Palette Conversion
 
 This feature works similarly to digital [Color Grading](https://en.wikipedia.org/wiki/Color_grading). 
 
@@ -88,14 +91,13 @@ I have implemented two dithering algorithms:
 | **Duck (RGB)**      | ![duck_rgb](assets/duck_rgb.png)          | ![duck_rgb_q4](assets/duck_rgb_q4.png)            | ![duck_rgb_q4_d](assets/duck_rgb_q4_ordered.png)          | ![duck_rgb_q4_d](assets/duck_rgb_q4_floyd_steinberg.png)          |
 
 
-## SIMD Acceleration 🚀
+## 🚀 SIMD Acceleration
 
-Working with images often requires performing operations on thousands of pixels. Since images are essentially large arrays of pixel data, and the same operations can be applied to many pixels at the same time, 
-this makes them **ideal candidates for [SIMD acceleration](https://en.wikipedia.org/wiki/Single_instruction,_multiple_data)**.
+Working with images often requires performing operations on thousands of pixels. Since images are essentially large arrays of pixel data and the same operations can be applied to many pixels at the same time, this makes them **ideal candidates for [SIMD acceleration](https://en.wikipedia.org/wiki/Single_instruction,_multiple_data)**.
 
 Implementing SIMD acceleration often requires **major rewrites and optimizations**, and the process is often not very straightforward, but it is still very much worth it!
 
-The speedup I got after implementing vectorization is massive. For reference, my Ryzen 7 5700X3D can **quantize**, **dither** and **convert the color palette of an 8K image in around 15 seconds**. 
+The speedup I got after implementing vectorization is massive. For reference, my Ryzen 7 5700X3D can **quantize**, **dither** and **convert the color palette of an 8K image in around 15 seconds**.
 Without vectorization, the same operations on the same image took over **20 minutes**. So, in a way, you could say that the code in this repo is **8K-ready**! 😁
 
 ⚠️ **Vectorization is not the same as multithreading**! Vectorization leverages **[Vector Processors](https://en.wikipedia.org/wiki/Vector_processor)** that exist on modern CPUs. 
@@ -105,20 +107,22 @@ On that note, theoretically speaking the speedup could be even greater if I also
 SIMD acceleration in each core. However, since my current implementation already processes an **8K image in a very reasonable amount of time**, I haven't prioritized multithreading yet.
 
 
+## 🏁 Setup
+```bash
+# 1) Clone
+git clone https://github.com/RafaelAmauri/Image-Studio.git
 
-## Running the code 🛠️
+# 2) Install dependencies
+pip install -r requirements.txt
 
-1️⃣ Install the dependencies with
+# 3) Run
+python3 main.py -i path/to/image
 
-    pip install -r requirements.txt
+# 4) You can specify what operations you want with the command line.  For example, to quantize an image with 8 colors, you could run
+python3 main.py -i path/to/image --quantize 8
 
-2️⃣ Next, run the code with
+# For a full list of all available options, check out [include/parser.py](include/utils/parser.py). This file contains all the valid operations with a help section for each one.
 
-    python3 main.py -i path/to/image
-
-
-3️⃣ You can specify what operations you want by the command line.  For example, to quantize an image with 8 colors, you could run
-
-    python3 main.py -i path/to/image --quantize 8
-
-For a full list of available options, check out [include/parser.py](include/parser.py). This file contains all the valid operations.
+# 5) Check the result :)
+The program will automatically save the post-processed image as processed.png
+```
