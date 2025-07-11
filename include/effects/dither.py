@@ -59,14 +59,14 @@ def floydSteinberg(img: np.typing.NDArray, availableColors: np.typing.NDArray) -
     
     for row in range(img.shape[0]):
         for column in range(img.shape[1]):
-            oldPixelColor = img[row][column].copy()
+            originalColor = img[row][column].copy() # Should have nChannels dimensions.
             
-            # Quantize the pixel
-            newPixelColor    = quantize.nearestColor(oldPixelColor, availableColors)
-            img[row][column] = newPixelColor
+            # Quantize the image
+            quantizedColor   = quantize.nearestColor(originalColor, availableColors)
+            img[row][column] = quantizedColor
             
             # Calculate the residuals (difference between original color and new color)
-            quantizationResidual = oldPixelColor - newPixelColor
+            quantizationResidual = originalColor - quantizedColor
             
             # Uses the Floyd-Steinberg algorithm to distribute the residuals.
             residuals = distributeResiduals(quantizationResidual)
