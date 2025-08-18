@@ -1,14 +1,15 @@
 import numpy as np
 import PIL.Image
 
-import include.effects.floyd_steinberg_dither as floyd_steinberg_dither
-import include.effects.ordered_dither as ordered_dither
-import include.effects.edge_detection as edge_detection
-import include.effects.colormapping as colormapping
-import include.effects.brightness as brightness
-import include.effects.contrast as contrast
-import include.effects.quantize as quantize
-import include.effects.blur as blur
+import include.effects.dithering.floyd_steinberg as floyd_steinberg
+import include.effects.dithering.ordered_dither as ordered_dither
+import include.effects.color.colormapping as colormapping
+import include.effects.edge_detection.prewitt as prewitt
+import include.effects.edge_detection.sobel as sobel
+import include.effects.color.brightness as brightness
+import include.effects.color.contrast as contrast
+import include.effects.color.quantize as quantize
+import include.effects.blur.blur as blur
 
 import include.utils.colormodel as colormodel
 import include.utils.parser as parser
@@ -42,7 +43,7 @@ def main(args):
             if args.dithering == "ordered":
                 img = ordered_dither.orderedDithering(img, 2, availableColors)
             elif args.dithering == "floyd-steinberg":
-                img = floyd_steinberg_dither.floydSteinberg(img, availableColors)
+                img = floyd_steinberg.floydSteinberg(img, availableColors)
 
         # Quantize the image without dithering
         if args.dithering is None:
@@ -84,10 +85,10 @@ def main(args):
     if args.edge_detection is not None:
         # Perform sobel edge detection
         if args.edge_detection == "sobel":
-            img = edge_detection.sobel(img, args.edge_color)
+            img = sobel.sobel(img, args.edge_color)
         # Perform prewitt edge detection
         if args.edge_detection == "prewitt":
-            img = edge_detection.prewitt(img, args.edge_color)
+            img = prewitt.prewitt(img, args.edge_color)
 
 
     if img.shape[-1] == 1:
