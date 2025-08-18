@@ -1,95 +1,5 @@
 import numpy as np
 
-import include.effects.quantize as quantize
-
-
-def distributeResiduals(quantizationResidual: np.typing.NDArray) -> np.typing.NDArray:
-    """
-    Returns a list for how the quantization residuals should be distributed.
-
-    Args:
-        quantizationResidual (int): The residual of the quantization operation for a given pixel
-
-    Returns:
-        np.typing.NDArray (np.float32): The quantizationResidual after being distributed according to the Floyd-Steinberg method
-    """
-
-    floydSteinbergWeights         = np.array([7/16, 3/16, 5/16, 1/16], dtype=np.float32)
-    
-    # Create new axis to broadcast. Output should be (nChannels, 4)
-    weightedQuantizationResiduals = quantizationResidual[..., np.newaxis] * floydSteinbergWeights
-    
-
-    return weightedQuantizationResiduals
-
-
-def floydSteinberg(img: np.typing.NDArray, availableColors: np.typing.NDArray) -> np.typing.NDArray:
-    """
-    WARNING: Floyd-Steinberg Dithering unfortunately cannot be easily run in parallel because 
-    calculating the quantization error has local dependencies with neighboring pixels and what their dithered result is :(
-
-    Fortunately, the channels are fully independent, so I can run Floyd-Steinberg for each channel in parallel and then
-    stack them back together. This was essentially my strategy to run this in parallel. 
-    
-    For more details, this great paper by Quentin Guilloteau explains the problem quite well https://hal.science/hal-03594790/document.
-
-    
-    Uses a Floyd-Steinberg filter (https://en.wikipedia.org/wiki/Floyd%E2%80%93Steinberg_dithering) to calculate 
-    a dithering effect.
-
-    The dithering works as follows:
-        1. We assign a new value to the current pixel
-        
-        2. We compute the error of this pixel as the difference between the new value and the old value
-        
-        3. [Error Diffusion] We add a fraction of this error to the neighbouring pixels.
-            For example, if the error for the current pixel is 42, we will add 7/16 x 42 to the value of the pixels on its
-            right
-
-    Args:
-        img (np.typing.NDArray)             : The image array. Must be in the format (H, W, C)
-        availableColors (np.typing.NDArray) : A list containing the colors available. Should start at 0 and 
-                                                the last element should be 255.
-
-    Returns:
-        np.typing.NDArray (np.uint8): The quantized image
-    """
-    # Create a safety copy and convert to float32 because the diffusion errors are often non-integer values.
-    img = np.copy(img).astype(np.float32)
-    
-    for row in range(img.shape[0]):
-        for column in range(img.shape[1]):
-            originalColor = img[row][column].copy() # Should have nChannels dimensions.
-            
-            # Quantize the image
-            quantizedColor   = quantize.nearestColor(originalColor, availableColors)
-            img[row][column] = quantizedColor
-            
-            # Calculate the residuals (difference between original color and new color)
-            quantizationResidual = originalColor - quantizedColor
-            
-            # Uses the Floyd-Steinberg algorithm to distribute the residuals.
-            residuals = distributeResiduals(quantizationResidual)
-            
-            # Distribute the residuals. We clip the values so residuals are always in the [0, 255] range
-            if column + 1 < img.shape[1]:
-                # Update pixel to the right
-                img[row][column+1]   = np.clip(img[row][column+1]   + residuals[..., 0], 0, 255)
-            
-            if row + 1 < img.shape[0]:
-                # Update pixel below
-                img[row+1][column]   = np.clip(img[row+1][column]   + residuals[..., 2], 0, 255)
-                if column - 1 >= 0:
-                    # Update pixel below and to the left
-                    img[row+1][column-1] = np.clip(img[row+1][column-1] + residuals[..., 1], 0, 255)
-                if column + 1 < img.shape[1]:
-                    # Update pixel to the right
-                    img[row+1][column+1] = np.clip(img[row+1][column+1] + residuals[..., 3], 0, 255)
-    
-    img = img.astype(np.uint8)
-
-    return img
-
 
 def orderedDithering(img: np.typing.NDArray, filterOption: int, availableColors: np.typing.NDArray):
     """
@@ -178,6 +88,4 @@ def orderedDithering(img: np.typing.NDArray, filterOption: int, availableColors:
 
     
     # Now we simply return the image to its original shape.
-    img = img.reshape(originalImgShape).astype(np.uint8)
-
-    return img
+    return img.reshape(originalImgShape).astype(np.uint8)

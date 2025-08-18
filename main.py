@@ -1,12 +1,13 @@
 import numpy as np
 import PIL.Image
 
+import include.effects.floyd_steinberg_dither as floyd_steinberg_dither
+import include.effects.ordered_dither as ordered_dither
 import include.effects.edge_detection as edge_detection
 import include.effects.colormapping as colormapping
 import include.effects.brightness as brightness
 import include.effects.contrast as contrast
 import include.effects.quantize as quantize
-import include.effects.dither as dither
 import include.effects.blur as blur
 
 import include.utils.colormodel as colormodel
@@ -24,8 +25,6 @@ def main(args):
     if args.grayscale:
         img = colormodel.rgb2grayscale(img)
     
-    
-
     # Creates a uniformily spaced color distribution. It's a uniform division from 0 to 255, with args.quantize different colors.
     availableColors = np.linspace(0, 255, args.quantize, dtype=np.uint8)
 
@@ -41,9 +40,9 @@ def main(args):
         # Quantize the image with dithering
         if args.dithering is not None:
             if args.dithering == "ordered":
-                img = dither.orderedDithering(img, 2, availableColors)
+                img = ordered_dither.orderedDithering(img, 2, availableColors)
             elif args.dithering == "floyd-steinberg":
-                img = dither.floydSteinberg(img, availableColors)
+                img = floyd_steinberg_dither.floydSteinberg(img, availableColors)
 
         # Quantize the image without dithering
         if args.dithering is None:
