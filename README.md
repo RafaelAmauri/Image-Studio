@@ -115,14 +115,17 @@ git clone https://github.com/RafaelAmauri/Image-Studio.git
 # 2) Install dependencies
 pip install -r requirements.txt
 
-# 3) Run
+# 3) Compile the Cython code
+python setup.py build_ext --build-lib=include/effects
+
+# 4) Run
 python3 main.py -i path/to/image
 
-# 4) You can specify what operations you want with the command line.  For example, to quantize an image with 8 colors, you could run
+# 5) You can specify what operations you want with the command line.  For example, to quantize an image with 8 colors, you could run
 python3 main.py -i path/to/image --quantize 8
 
 # For a full list of all available options, check out [include/parser.py](include/utils/parser.py). This file contains all the valid operations with a help section for each one.
 
-# 5) Check the result :)
+# 6) Check the result :)
 The program will automatically save the post-processed image as processed.png
 ```
