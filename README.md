@@ -2,6 +2,8 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.13-blue.svg)](https://www.python.org/)
 [![Numpy](https://img.shields.io/badge/numpy-2.3.1-blue.svg)](https://www.python.org/)
+[![Cython](https://img.shields.io/badge/cython-3.1.3-blue.svg)](https://www.python.org/)
+
 
 Welcome to **Image Studio** 👋!
 
@@ -105,7 +107,7 @@ Without vectorization, the same operations on the same image took over **20 minu
 
 In cases where the code has to run sequentially and parallelization + SIMD acceleration are not applicable (for example, in the [Floyd-Steinberg Dithering Algorithm](https://en.wikipedia.org/wiki/Floyd%E2%80%93Steinberg_dithering)), I opted to use **Cython**, which is a superset of Python that lets me use C-level types and performance optimizations while writing in Python syntax. Cython also transpiles the code into optimized C code and handles conversions from Python types to C types. The transpiled C code is then compiled into a shared library that can interact seamlessly with the rest of the Python codebase, combining the readability and simplicity of Python with the raw performance of C code.
 
-To illustrate the benefits of using Cython, my implementation of Floyd-Steinberg used vectorized Numpy code to run, and it took ~3 minutes to dither a 4K image, because the algorithm has local pixel-level dependencies that can't be run fully in parallel. After using Cython, it now takes ~3 seconds to run Floyd-Steinberg on the same 4K image.
+To illustrate the benefits of using Cython, my implementation of Floyd-Steinberg originally used vectorized Numpy code to run, and it took ~3 minutes to dither a 4K image, because the algorithm has local pixel-level dependencies that can't be run fully in parallel. After reimplementing the algorithm in Cython, it now takes ~3 seconds to run Floyd-Steinberg on the same 4K image.
 
 
 ## 🏁 Setup
