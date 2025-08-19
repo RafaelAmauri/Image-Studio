@@ -103,11 +103,11 @@ The speedup I got after implementing vectorization is massive. For reference, my
 Without vectorization, the same operations on the same image took over **20 minutes**. So, in a way, you could say that the code in this repo is **8K-ready**! 😁
 
 
-## 🏎️ Leveraging C code
+## 🏎️ Combining Python with C
 
 In cases where the code has to run sequentially and parallelism or SIMD acceleration are not applicable (for example, in the [Floyd-Steinberg Dithering Algorithm](https://en.wikipedia.org/wiki/Floyd%E2%80%93Steinberg_dithering)), I opted to use **Cython**, which is a superset of Python that lets me use C-level types and performance optimizations while writing in Python-like syntax. Cython transpiles the code into optimized C, automatically handles the conversion between Python and C types, and compiles it into a shared library that can interact seamlessly with the rest of the Python codebase, combining the readability of Python with the raw performance of C.
 
-To illustrate the benefits of using Cython, my Numpy-based implementation of Floyd–Steinberg dithering took ~3 minutes to process a 4K image. With Cython, the same algorithm runs in just ~3 seconds.
+To illustrate the benefits of using Cython, my Numpy-based implementation of Floyd–Steinberg dithering used to take ~3 minutes to process a 4K image. With Cython, the same algorithm runs in just ~3 seconds.
 
 
 ## 🏁 Setup
@@ -119,7 +119,7 @@ git clone https://github.com/RafaelAmauri/Image-Studio.git
 pip install -r requirements.txt
 
 # 3) Compile the Cython code
-python setup.py build_ext --build-lib=include/effects/dithering
+python setup.py build_ext --inplace
 
 # 4) Run
 python3 main.py -i path/to/image
