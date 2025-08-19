@@ -127,7 +127,7 @@ python3 main.py -i path/to/image
 # 5) You can specify what operations you want with the command line.  For example, to quantize an image with 8 colors, you could run
 python3 main.py -i path/to/image --quantize 8
 
-# For a full list of all available options, check out [include/parser.py](include/utils/parser.py). This file contains all the valid operations with a help section for each one.
+# For a full list of all available options, check out include/utils/parser.py. This file contains all the valid operations with a help section for each one.
 
 # 6) Check the result :)
 The program will automatically save the post-processed image as processed.png
