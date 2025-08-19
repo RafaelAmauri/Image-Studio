@@ -99,13 +99,13 @@ Working with images often requires performing operations on thousands of pixels.
 
 Implementing SIMD acceleration often requires **major rewrites and optimizations**, and the process is often not very straightforward, but it is still very much worth it!
 
-The speedup I got after implementing vectorization is massive. For reference, my Ryzen 7 5700X3D can **quantize**, **dither with the ordered dithering algorithm** and **convert the color palette of an 8K image in around 15 seconds**.
+The speedup I got after implementing vectorization is massive. For reference, my Ryzen 7 5700X3D can **quantize**, **blur** and **convert the color palette of an 8K image in around 15 seconds**.
 Without vectorization, the same operations on the same image took over **20 minutes**. So, in a way, you could say that the code in this repo is **8K-ready**! 😁
 
 
 ## 🏎️ Leveraging C code
 
-In cases where the code has to run sequentially and parallelization + SIMD acceleration are not applicable (for example, in the [Floyd-Steinberg Dithering Algorithm](https://en.wikipedia.org/wiki/Floyd%E2%80%93Steinberg_dithering)), I opted to use **Cython**, which is a superset of Python that lets me use C-level types and performance optimizations while writing in Python-like syntax. Cython transpiles the code into optimized C, automatically handles the conversion between Python and C types, and compiles it into a shared library that can interact seamlessly with the rest of the Python codebase, combining the readability of Python with the raw performance of C.
+In cases where the code has to run sequentially and parallelism or SIMD acceleration are not applicable (for example, in the [Floyd-Steinberg Dithering Algorithm](https://en.wikipedia.org/wiki/Floyd%E2%80%93Steinberg_dithering)), I opted to use **Cython**, which is a superset of Python that lets me use C-level types and performance optimizations while writing in Python-like syntax. Cython transpiles the code into optimized C, automatically handles the conversion between Python and C types, and compiles it into a shared library that can interact seamlessly with the rest of the Python codebase, combining the readability of Python with the raw performance of C.
 
 To illustrate the benefits of using Cython, my Numpy-based implementation of Floyd–Steinberg dithering took ~3 minutes to process a 4K image. With Cython, the same algorithm runs in just ~3 seconds.
 
