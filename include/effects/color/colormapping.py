@@ -2,32 +2,6 @@ import numpy as np
 import typing
 
 
-def changeColor(img: np.typing.NDArray, LUT: typing.Dict) -> np.typing.NDArray:
-    """Given an HSV image, this function changes the colors within a specified hue with another hue!
-    Use a color LUT as an argument and the function will change the pixels with a hue that fall within 
-    a specific range with the other specified hue!
-
-    Args:
-        img (np.typing.NDArray): The HSV image
-        LUT (typing.Dict)        : The color LUT. 
-                                   Must be in the following format: { (originalHueLowerBound, originalHueUpperBound): (targetHueLowerBound, targetHueUpperBound) }
-
-    Returns:
-        np.typing.NDArray: The HSV image with converted colors.
-    """
-    for row in range(img.shape[0]):
-        for column in range(img.shape[1]):
-            currentHue = img[row][column][0]
-            for (originalHueLowerBound, originalHueUpperBound), (targetHueLowerBound, targetHueUpperBound) in LUT.items():
-                if currentHue >= originalHueLowerBound and currentHue <= originalHueUpperBound:
-
-                    newHue = targetHueLowerBound + (img[row][column][0] - originalHueLowerBound) * (targetHueUpperBound - targetHueLowerBound) / (originalHueUpperBound - originalHueLowerBound)
-                    img[row][column][0] = newHue
-    
-    return img
-
-    
-
 def changeColorPaletteGrayscale(img: np.typing.NDArray, LUT: typing.Dict) -> np.typing.NDArray:
     """This function converts the color palette within an HSV image into a specified color palette!
     This works as a traditional color LUT (https://en.wikipedia.org/wiki/3D_lookup_table).
