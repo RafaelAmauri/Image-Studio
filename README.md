@@ -7,7 +7,7 @@
 
 Welcome to **Image Studio** 👋!
 
-**Image Studio** is a pet project of mine where I code a range of different image processing techniques. My main goal here is to challenge myself and use only Numpy to implement image processing algorithms that I find interesting.
+**Image Studio** is a pet project of mine where I code a range of different image processing techniques. My main goal here is to challenge myself to use only Numpy and C-like Cython code to implement image processing algorithms that I find interesting.
 
 I have also written a [Wiki](https://github.com/RafaelAmauri/Image-Studio/wiki) for **Image Studio**. I use the Wiki to explain what some of the more complicated implementations do and also give examples of the implemented functionalities.
 
