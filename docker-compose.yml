@@ -1,0 +1,8 @@
+services:
+  minha-app:
+    build:
+      context: .
+    container_name: image-studio
+    volumes:
+      - ./assets:/data/assets
+      - ./images:/data/images
