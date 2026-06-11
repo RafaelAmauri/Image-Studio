@@ -5,9 +5,9 @@
 [![Cython](https://img.shields.io/badge/cython-3.1.3-blue.svg)](https://www.python.org/)
 
 
-Welcome to **Image Studio** 👋!
+Welcome to **Image Studio**!
 
-**Image Studio** is where I code a range of different image processing techniques. My main goal here is build everything from scratch using only Numpy and C-like Cython code to implement image processing algorithms that I find interesting.
+**Image Studio** is where I code a range of different image processing techniques. My main goal here is to build everything from scratch using only Numpy and C-like Cython code to implement image processing algorithms that I find interesting.
 
 I have also written a [Wiki](https://github.com/RafaelAmauri/Image-Studio/wiki) for **Image Studio**. I use the Wiki to explain what some of the more complicated implementations do and also give examples of the implemented functionalities.
 
@@ -16,7 +16,7 @@ I have also written a [Wiki](https://github.com/RafaelAmauri/Image-Studio/wiki) 
 # Showcase 
 
 
-## 🎨 Color Palette Conversion
+## Color Palette Conversion
 
 This feature works similarly to digital [Color Grading](https://en.wikipedia.org/wiki/Color_grading). 
 
@@ -69,7 +69,7 @@ It's also possible to specify a **Hue Range**. This controls how much the availa
 ![Girl - Blue](assets/animegirl_blue.png)
 
 
-## Quantization and Dithering 🟥 🟩 🟦 🟧 🟪
+## Quantization and Dithering
 
 **Quantization** works by reducing the number of colors in an image by grouping similar colors together.  **Quantizing the image without dithering causes major [Color Banding](https://en.wikipedia.org/wiki/Colour_banding)**.
 
@@ -93,7 +93,7 @@ I have implemented two dithering algorithms:
 | **Duck (RGB)**      | ![duck_rgb](assets/duck_rgb.png)          | ![duck_rgb_q4](assets/duck_rgb_q4.png)            | ![duck_rgb_q4_d](assets/duck_rgb_q4_ordered.png)          | ![duck_rgb_q4_d](assets/duck_rgb_q4_floyd_steinberg.png)          |
 
 
-## 🚀 SIMD Acceleration
+## SIMD Acceleration
 
 Working with images often requires performing operations on thousands of pixels. Since images are essentially large arrays of pixel data and the same operations can be applied to many pixels at the same time, this makes them **ideal candidates for [SIMD acceleration](https://en.wikipedia.org/wiki/Single_instruction,_multiple_data)**.
 
@@ -103,7 +103,7 @@ The speedup I got after implementing vectorization is massive. For reference, my
 Without vectorization, the same operations on the same image took over **20 minutes**. So, in a way, you could say that the code in this repo is **8K-ready**! 😁
 
 
-## 🏎️ Combining Python with C
+##  Combining Python with C
 
 In cases where the code has to run sequentially and parallelism or SIMD acceleration are not applicable (for example, in the [Floyd-Steinberg Dithering Algorithm](https://en.wikipedia.org/wiki/Floyd%E2%80%93Steinberg_dithering)), I opted to use **Cython**, which is a superset of Python that lets me use C-level types and performance optimizations while writing in Python-like syntax. Cython transpiles the code into optimized C, automatically handles the conversion between Python and C types, and compiles it into a shared library that can interact seamlessly with the rest of the Python codebase, combining the readability of Python with the raw performance of C.
 
